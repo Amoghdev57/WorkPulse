@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var username = Context.Session.GetString("username") ?? "Employee";
+}
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .page-wrapper {
+        background-color: gold;
+        min-height: 100vh;
+        overflow-y: auto;
+        padding-top: 30px;
+        box-sizing: border-box;
+    }
+</style>
+
+<div class="page-wrapper">
+
+    <!-- Centered Welcome Message -->
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 20vh;">
+        <h5 class="text-secondary text-black">
+            Welcome to the Daily Work Status Update Portal
+        </h5>
+        <p class="text-black">
+            Keep track of your daily work progress and stay organized with your team.
+        </p>
+    </div>
+
+    <!-- Employee Details -->
+    <div class="container mt-2">
+        <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+            <div class="card-body text-start">
+                <h4 class="card-title text-primary">Employee Details</h4>
+                <hr />
+                <p><strong>Name:</strong> @username</p>
+                <p><strong>Employee ID:</strong> EMP001</p>
+                <p><strong>Department:</strong> IT</p>
+                <p><strong>Designation:</strong> Software Developer</p>
+                <p><strong>Email:</strong> @($"{username.ToLower()}@company.com")</p>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="text-center mt-4">
+            <p class="text-muted small fst-italic">
+                Created for learning and demonstration purpose only.
+            </p>
+        </div>
+    </div>
+</div>

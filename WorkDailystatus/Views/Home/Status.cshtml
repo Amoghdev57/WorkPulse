@@ -1,0 +1,105 @@
+﻿@model IEnumerable<WorkDailystatus.Models.StatusEntry>
+@{
+    ViewData["Title"] = "Status";
+    var editingSerial = ViewBag.EditSerialNumber as int?;
+}
+
+<h2 style="text-align: center;">  <i class="fa-solid fa-file-invoice"></i>  Daily Status Entries</h2>
+
+
+<!-- Add New Status Form -->
+<form asp-action="AddStatus" method="post" class="d-flex justify-content-center" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px; width: 80%; max-width: 800px;">
+        <label for="userStatus" style="margin: 0;">Status:</label>
+        <input type="text" id="userStatus" name="userStatus" required
+               style="flex: 1; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px;" />
+
+        <button type="submit"
+                style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Add Status
+        </button>
+    </div>
+</form>
+
+
+<!-- Status Table -->
+<table style="width: 80%; margin: auto; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 10%;">Serial Number</th>
+            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 20%;">Date</th>
+            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 50%;">Status</th>
+            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 20%;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var entry in Model)
+            {
+                <tr>
+                    <td style="border: 1px solid black; padding: 12px; text-align: center;">@entry.SerialNumber</td>
+                    <td style="border: 1px solid black; padding: 12px; text-align: center;">@entry.Date.ToString("g")</td>
+                    @* <td style="border: 1px solid black; padding: 12px; white-space: pre-wrap;">*@
+                    <td style="border: 1px solid black; padding: 12px; text-align: center; vertical-align: middle; line-height: 1.5;">
+
+
+                        @if (editingSerial == entry.SerialNumber)
+                        {
+                            <form asp-action="EditInline" method="post" style="display:flex; gap:10px;"/>
+                                <input type="hidden" name="SerialNumber" value="@entry.SerialNumber" />
+                                <input type="text" name="UserStatus" value="@entry.UserStatus"
+                                       style="flex:1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" />
+                        }
+                        else
+                        {
+                            @entry.UserStatus
+                        }
+                    </td>
+                    <td style="border: 1px solid black; padding: 12px; text-align: center;">
+                        @if (editingSerial == entry.SerialNumber)
+                        {
+                                <button type="submit"
+                                        style="padding: 6px 12px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                </button>
+                            
+                            <form asp-action="Status" method="get" style="display:inline;">
+                                <button type="submit"
+                                        style="padding: 6px 12px; background-color: darkgrey; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fa-solid fa-ban"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <!-- Edit Button -->
+                            <form asp-action="Status" method="get" style="display:inline; margin-right: 5px;">
+                                <input type="hidden" name="editSerial" value="@entry.SerialNumber" />
+                                <button type="submit"
+                                        style="padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </form>
+
+                            <!-- Delete Button -->
+                            <form asp-action="Delete" method="post" style="display:inline;">
+                                <input type="hidden" name="serialNumber" value="@entry.SerialNumber" />
+                                <button type="submit"
+                                        style="padding: 6px 10px; background-color: red; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" style="border: 1px solid black; padding: 12px; text-align: center;">No status entries found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
