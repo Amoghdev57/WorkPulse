@@ -29,7 +29,7 @@ WorkPulse is an employee self-service web application that lets you log daily wo
 ![Forgot Password](./screenshots/Forgot-Password.png)
 
 ### Employee Dashboard
-![Employee Dashboard](./screenshots/Employee-Dashboard.png)
+![Employee Dashboard](./screenshots/Employee-Dasboard.png)
 
 ### Daily Status
 ![Daily Status](./screenshots/Status.png)
@@ -80,6 +80,7 @@ WorkPulse/
 │   ├── Models/
 │   ├── Views/
 │   └── ...
+├── screenshots/            # App screenshots
 ├── .gitignore
 └── README.md
 ```
