@@ -1,105 +1,579 @@
-﻿@model IEnumerable<WorkDailystatus.Models.StatusEntry>
+﻿@model IEnumerable<WorkPulse.Models.StatusEntry>
+
 @{
     ViewData["Title"] = "Status";
     var editingSerial = ViewBag.EditSerialNumber as int?;
+    var totalEntries = Model?.Count() ?? 0;
+    var todayEntries = Model?.Count(e => e.Date.Date == DateTime.Today) ?? 0;
 }
 
-<h2 style="text-align: center;">  <i class="fa-solid fa-file-invoice"></i>  Daily Status Entries</h2>
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
+    .sw-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
 
-<!-- Add New Status Form -->
-<form asp-action="AddStatus" method="post" class="d-flex justify-content-center" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 10px; width: 80%; max-width: 800px;">
-        <label for="userStatus" style="margin: 0;">Status:</label>
-        <input type="text" id="userStatus" name="userStatus" required
-               style="flex: 1; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px;" />
+    /* ── PAGE HEADER ── */
+    .sw-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        gap: 1rem;
+    }
 
-        <button type="submit"
-                style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Add Status
-        </button>
+    .sw-page-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 3px;
+        letter-spacing: -0.3px;
+    }
+
+    .sw-page-sub {
+        font-size: 13px;
+        color: #9ca3af;
+        margin: 0;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* ── STAT PILLS ── */
+    .sw-stats {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .sw-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 18px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        min-width: 72px;
+    }
+
+    .sw-stat-num {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
+        line-height: 1;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .sw-stat-label {
+        font-size: 10px;
+        color: #9ca3af;
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        font-weight: 600;
+    }
+
+    /* ── ADD FORM CARD ── */
+    .sw-add-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .sw-add-icon {
+        width: 36px;
+        height: 36px;
+        background: #EAF3DE;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .sw-add-icon svg {
+            width: 16px;
+            height: 16px;
+            color: #3B6D11;
+        }
+
+    .sw-add-input {
+        flex: 1;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 9px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        outline: none;
+        color: #111827;
+        background: #f9fafb;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+        .sw-add-input:focus {
+            border-color: #185FA5;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(24,95,165,0.08);
+        }
+
+        .sw-add-input::placeholder {
+            color: #c4c9d4;
+        }
+
+    .sw-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 9px 20px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+        .sw-btn svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .sw-btn:active {
+            transform: scale(0.98);
+        }
+
+    .sw-btn-primary {
+        background: #185FA5;
+        color: #ffffff;
+        border-color: #185FA5;
+    }
+
+        .sw-btn-primary:hover {
+            background: #0C447C;
+            border-color: #0C447C;
+        }
+
+    .sw-btn-save {
+        background: #EAF3DE;
+        color: #3B6D11;
+        border-color: #97C459;
+        padding: 7px 14px;
+    }
+
+        .sw-btn-save:hover {
+            background: #c0dd97;
+        }
+
+    .sw-btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+        border-color: #e5e7eb;
+        padding: 7px 14px;
+    }
+
+        .sw-btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+    .sw-btn-edit {
+        background: #E6F1FB;
+        color: #185FA5;
+        border-color: #85B7EB;
+        padding: 6px 12px;
+    }
+
+        .sw-btn-edit:hover {
+            background: #B5D4F4;
+        }
+
+    .sw-btn-delete {
+        background: #FCEBEB;
+        color: #A32D2D;
+        border-color: #F09595;
+        padding: 6px 12px;
+    }
+
+        .sw-btn-delete:hover {
+            background: #F7C1C1;
+        }
+
+    /* ── TABLE CARD ── */
+    .sw-table-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .sw-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sw-table-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .sw-table-title svg {
+            width: 15px;
+            height: 15px;
+            color: #9ca3af;
+        }
+
+    .sw-count-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    table.sw-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .sw-table thead tr {
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sw-table th {
+        padding: 10px 16px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        text-align: left;
+    }
+
+        .sw-table th.center {
+            text-align: center;
+        }
+
+    .sw-table td {
+        padding: 13px 16px;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+    }
+
+    .sw-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .sw-table tbody tr {
+        transition: background 0.12s;
+    }
+
+        .sw-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+    .sw-serial {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #9ca3af;
+        text-align: center;
+    }
+
+    .sw-date {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #6b7280;
+        white-space: nowrap;
+    }
+
+    .sw-status-text {
+        color: #111827;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    .sw-actions-cell {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .sw-inline-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sw-edit-input {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13.5px;
+        flex: 1;
+        padding: 7px 11px;
+        border: 1px solid #185FA5;
+        border-radius: 7px;
+        outline: none;
+        color: #111827;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(24,95,165,0.08);
+        min-width: 0;
+    }
+
+    /* ── EMPTY STATE ── */
+    .sw-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .sw-empty-icon {
+        width: 52px;
+        height: 52px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .sw-empty-icon svg {
+            width: 22px;
+            height: 22px;
+            color: #d1d5db;
+        }
+
+    .sw-empty-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 4px;
+    }
+
+    .sw-empty-sub {
+        font-size: 13px;
+        color: #9ca3af;
+        margin: 0;
+    }
+
+    /* ── TODAY BADGE ── */
+    .sw-today-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        background: #E6F1FB;
+        color: #185FA5;
+        border-radius: 10px;
+        margin-left: 6px;
+        letter-spacing: 0.3px;
+        vertical-align: middle;
+    }
+
+    @@media (max-width: 640px) {
+        .sw-page-header {
+            flex-direction: column;
+        }
+
+        .sw-stats {
+            align-self: flex-start;
+        }
+
+        .sw-add-card {
+            flex-wrap: wrap;
+        }
+
+        .sw-table th:nth-child(1),
+        .sw-table td:nth-child(1) {
+            display: none;
+        }
+    }
+</style>
+
+<div class="sw-root">
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="sw-page-header">
+        <div>
+            <h1 class="sw-page-title">Daily Status</h1>
+            <p class="sw-page-sub">@DateTime.Now.ToString("dddd, dd MMM yyyy")</p>
+        </div>
+        <div class="sw-stats">
+            <div class="sw-stat">
+                <span class="sw-stat-num">@totalEntries</span>
+                <span class="sw-stat-label">Total</span>
+            </div>
+            <div class="sw-stat">
+                <span class="sw-stat-num">@todayEntries</span>
+                <span class="sw-stat-label">Today</span>
+            </div>
+        </div>
     </div>
-</form>
 
+    <!-- ── ADD FORM ── -->
+    <form asp-action="AddStatus" method="post" class="sw-add-card">
+        <div class="sw-add-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+        </div>
+        <input type="text" name="userStatus" class="sw-add-input"
+               placeholder="What did you work on today?" required autocomplete="off" />
+        <button type="submit" class="sw-btn sw-btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add entry
+        </button>
+    </form>
 
-<!-- Status Table -->
-<table style="width: 80%; margin: auto; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-    <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 10%;">Serial Number</th>
-            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 20%;">Date</th>
-            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 50%;">Status</th>
-            <th style="border: 1px solid black; padding: 12px; text-align: center; width: 20%;">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var entry in Model)
-            {
+    <!-- ── TABLE CARD ── -->
+    <div class="sw-table-card">
+        <div class="sw-table-header">
+            <p class="sw-table-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                Status entries
+            </p>
+            <span class="sw-count-badge">@totalEntries</span>
+        </div>
+
+        <table class="sw-table">
+            <thead>
                 <tr>
-                    <td style="border: 1px solid black; padding: 12px; text-align: center;">@entry.SerialNumber</td>
-                    <td style="border: 1px solid black; padding: 12px; text-align: center;">@entry.Date.ToString("g")</td>
-                    @* <td style="border: 1px solid black; padding: 12px; white-space: pre-wrap;">*@
-                    <td style="border: 1px solid black; padding: 12px; text-align: center; vertical-align: middle; line-height: 1.5;">
-
-
-                        @if (editingSerial == entry.SerialNumber)
-                        {
-                            <form asp-action="EditInline" method="post" style="display:flex; gap:10px;"/>
-                                <input type="hidden" name="SerialNumber" value="@entry.SerialNumber" />
-                                <input type="text" name="UserStatus" value="@entry.UserStatus"
-                                       style="flex:1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" />
-                        }
-                        else
-                        {
-                            @entry.UserStatus
-                        }
-                    </td>
-                    <td style="border: 1px solid black; padding: 12px; text-align: center;">
-                        @if (editingSerial == entry.SerialNumber)
-                        {
-                                <button type="submit"
-                                        style="padding: 6px 12px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                </button>
-                            
-                            <form asp-action="Status" method="get" style="display:inline;">
-                                <button type="submit"
-                                        style="padding: 6px 12px; background-color: darkgrey; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                    <i class="fa-solid fa-ban"></i>
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <!-- Edit Button -->
-                            <form asp-action="Status" method="get" style="display:inline; margin-right: 5px;">
-                                <input type="hidden" name="editSerial" value="@entry.SerialNumber" />
-                                <button type="submit"
-                                        style="padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                            </form>
-
-                            <!-- Delete Button -->
-                            <form asp-action="Delete" method="post" style="display:inline;">
-                                <input type="hidden" name="serialNumber" value="@entry.SerialNumber" />
-                                <button type="submit"
-                                        style="padding: 6px 10px; background-color: red; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        }
-                    </td>
+                    <th class="center" style="width:52px;">#</th>
+                    <th style="width:160px;">Date</th>
+                    <th>Status</th>
+                    <th style="width:120px;"></th>
                 </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" style="border: 1px solid black; padding: 12px; text-align: center;">No status entries found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var entry in Model)
+                    {
+                        bool isEditing = editingSerial == entry.SerialNumber;
+                        bool isToday = entry.Date.Date == DateTime.Today;
+
+                        <tr>
+                            <td class="sw-serial">@entry.SerialNumber</td>
+
+                            <td class="sw-date">
+                                @entry.Date.ToString("dd MMM, HH:mm")
+                                @if (isToday)
+                                {
+                                    <span class="sw-today-badge">today</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (isEditing)
+                                {
+                                    <form asp-action="EditInline" method="post" class="sw-inline-form">
+                                        <input type="hidden" name="SerialNumber" value="@entry.SerialNumber" />
+                                        <input type="text" name="UserStatus"
+                                               value="@entry.UserStatus"
+                                               class="sw-edit-input"
+                                               autocomplete="off" />
+                                        <button type="submit" class="sw-btn sw-btn-save">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                                <polyline points="17 21 17 13 7 13 7 21" />
+                                                <polyline points="7 3 7 8 15 8" />
+                                            </svg>
+                                            Save
+                                        </button>
+                                        <form asp-action="Status" method="get" style="margin:0;">
+                                            <button type="submit" class="sw-btn sw-btn-cancel">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="sw-status-text">@entry.UserStatus</span>
+                                }
+                            </td>
+
+                            <td class="sw-actions-cell">
+                                @if (!isEditing)
+                                {
+                                    <form asp-action="Status" method="get" style="display:inline;margin:0;">
+                                        <input type="hidden" name="editSerial" value="@entry.SerialNumber" />
+                                        <button type="submit" class="sw-btn sw-btn-edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                            </svg>
+                                            Edit
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="Delete" method="post" style="display:inline;margin:0 0 0 6px;">
+                                        <input type="hidden" name="serialNumber" value="@entry.SerialNumber" />
+                                        <button type="submit" class="sw-btn sw-btn-delete"
+                                                onclick="return confirm('Delete this entry?')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6" />
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                                <path d="M10 11v6M14 11v6" />
+                                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4">
+                            <div class="sw-empty">
+                                <div class="sw-empty-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" y1="13" x2="8" y2="13" />
+                                        <line x1="16" y1="17" x2="8" y2="17" />
+                                    </svg>
+                                </div>
+                                <p class="sw-empty-title">No entries yet</p>
+                                <p class="sw-empty-sub">Add your first status update above to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

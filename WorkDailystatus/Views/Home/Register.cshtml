@@ -1,0 +1,718 @@
+﻿@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WorkPulse</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .reg-shell {
+            display: flex;
+            width: 100%;
+            max-width: 920px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+        }
+
+        /* ── LEFT PANEL ── */
+        .reg-left {
+            flex: 1;
+            background: #1e3a5f;
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reg-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+
+        .reg-left::after {
+            content: '';
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, transparent 70%);
+            bottom: -100px;
+            left: -80px;
+            pointer-events: none;
+        }
+
+        .rl-content { position: relative; z-index: 1; }
+
+        /* ── BRAND ── */
+        .rl-brand {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 2.75rem;
+        }
+
+        .rl-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rl-brand-icon svg { width: 18px; height: 18px; color: #ffffff; }
+
+        .rl-brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .rl-brand-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+            line-height: 1;
+        }
+
+        .rl-brand-name span { color: #93c5fd; }
+
+        .rl-brand-tag {
+            font-size: 10.5px;
+            color: #4a7a9b;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+
+        .rl-headline {
+            font-size: 26px;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.35;
+            letter-spacing: -0.4px;
+            margin: 0 0 12px;
+        }
+
+        .rl-sub {
+            font-size: 13.5px;
+            color: #93adc8;
+            line-height: 1.65;
+            margin: 0 0 2.5rem;
+        }
+
+        .rl-steps { display: flex; flex-direction: column; gap: 16px; }
+
+        .rl-step { display: flex; align-items: flex-start; gap: 12px; }
+
+        .rl-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: #93c5fd;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .rl-step-body { padding-top: 2px; }
+        .rl-step-title { font-size: 13px; font-weight: 600; color: #e2e8f0; margin: 0 0 2px; }
+        .rl-step-desc  { font-size: 12px; color: #93adc8; margin: 0; line-height: 1.5; }
+
+        .rl-footer {
+            position: relative;
+            z-index: 1;
+            font-size: 11px;
+            color: #4a6a8a;
+            font-family: 'DM Mono', monospace;
+            margin-top: 2rem;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .reg-right {
+            width: 440px;
+            flex-shrink: 0;
+            padding: 2.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+
+        .rr-title { font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 4px; letter-spacing: -0.3px; }
+        .rr-sub   { font-size: 13px; color: #9ca3af; margin: 0 0 1.5rem; }
+
+        /* ── FORM ── */
+        .rc-field { margin-bottom: 13px; }
+
+        .rc-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+
+        .rc-input-wrap { position: relative; }
+
+        .rc-input {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 9px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #111827;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+
+        .rc-input::placeholder { color: #d1d5db; }
+
+        .rc-input:focus {
+            border-color: #1e3a5f;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+        }
+
+        .rc-input.has-toggle { padding-right: 44px; }
+        .rc-input.valid      { border-color: #22c55e; background: #ffffff; }
+        .rc-input.invalid    { border-color: #ef4444; background: #ffffff; }
+
+        .rc-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            transition: color 0.15s;
+        }
+
+        .rc-toggle-btn:hover { color: #374151; }
+        .rc-toggle-btn svg { width: 16px; height: 16px; }
+
+        /* ── STRENGTH BAR ── */
+        .rc-strength { display: flex; gap: 4px; margin-top: 7px; }
+
+        .rc-strength-bar {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            transition: background 0.25s;
+        }
+
+        .rc-strength-bar.weak   { background: #ef4444; }
+        .rc-strength-bar.medium { background: #f59e0b; }
+        .rc-strength-bar.strong { background: #22c55e; }
+
+        .rc-strength-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* ── PASSWORD CRITERIA ── */
+        .rc-criteria {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            padding: 12px 14px;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .rc-criteria-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin: 0 0 2px;
+        }
+
+        .rc-rule {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .rc-rule.met   { color: #16a34a; }
+        .rc-rule.unmet { color: #6b7280; }
+        .rc-rule.fail  { color: #ef4444; }
+
+        .rc-rule-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.5px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .rc-rule.met  .rc-rule-icon { background: #dcfce7; border-color: #22c55e; }
+        .rc-rule.fail .rc-rule-icon { background: #fee2e2; border-color: #ef4444; }
+        .rc-rule-icon svg { width: 10px; height: 10px; }
+
+        /* ── MATCH HINT ── */
+        .rc-match-hint {
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: 500;
+            min-height: 16px;
+            display: block;
+        }
+
+        .rc-match-hint.ok   { color: #16a34a; }
+        .rc-match-hint.fail { color: #ef4444; }
+
+        /* ── ALERTS ── */
+        .rc-alert {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            margin-bottom: 1rem;
+            font-size: 13px;
+        }
+
+        .rc-alert svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .rc-alert.error   { background: #FCEBEB; border: 1px solid #F09595; color: #A32D2D; }
+        .rc-alert.error svg { color: #ef4444; }
+        .rc-alert.success { background: #EAF3DE; border: 1px solid #97C459; color: #3B6D11; }
+        .rc-alert.success svg { color: #22c55e; }
+
+        /* ── DIVIDER ── */
+        .rc-divider { height: 1px; background: #f0f0f0; margin: 1rem 0; }
+
+        /* ── SUBMIT ── */
+        .rc-submit {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            padding: 11px;
+            border-radius: 9px;
+            border: none;
+            background: #1e3a5f;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .rc-submit svg { width: 15px; height: 15px; }
+        .rc-submit:hover { background: #152b48; }
+        .rc-submit:active { transform: scale(0.99); }
+        .rc-submit:disabled { background: #93adc8; cursor: not-allowed; transform: none; }
+
+        /* ── LOGIN LINK ── */
+        .rc-login { text-align: center; font-size: 13px; color: #9ca3af; margin-top: 1rem; }
+        .rc-login a { color: #1e3a5f; text-decoration: none; font-weight: 500; }
+        .rc-login a:hover { color: #152b48; text-decoration: underline; }
+
+        @@media (max-width: 700px) {
+            .reg-shell  { flex-direction: column; max-width: 420px; }
+            .reg-left   { padding: 2rem 1.75rem 1.75rem; }
+            .rl-steps   { display: none; }
+            .rl-headline { font-size: 20px; margin-bottom: 6px; }
+            .rl-sub     { margin-bottom: 0; font-size: 13px; }
+            .rl-footer  { display: none; }
+            .reg-right  { width: 100%; padding: 2rem 1.75rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="reg-shell">
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="reg-left">
+        <div class="rl-content">
+
+            <!-- Brand — fixed with tagline -->
+            <div class="rl-brand">
+                <div class="rl-brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8M12 17v4"/>
+                    </svg>
+                </div>
+                <div class="rl-brand-text">
+                    <span class="rl-brand-name">Work<span>Pulse</span></span>
+                    <span class="rl-brand-tag">Feel the rhythm of your work.</span>
+                </div>
+            </div>
+
+            <h1 class="rl-headline">Get started<br/>in minutes.</h1>
+            <p class="rl-sub">Create your account and start logging your daily work status right away.</p>
+
+            <div class="rl-steps">
+                <div class="rl-step">
+                    <div class="rl-step-num">01</div>
+                    <div class="rl-step-body">
+                        <p class="rl-step-title">Create your account</p>
+                        <p class="rl-step-desc">Pick a username and a strong, secure password</p>
+                    </div>
+                </div>
+                <div class="rl-step">
+                    <div class="rl-step-num">02</div>
+                    <div class="rl-step-body">
+                        <p class="rl-step-title">Set up your profile</p>
+                        <p class="rl-step-desc">Add your department, designation and employee details</p>
+                    </div>
+                </div>
+                <div class="rl-step">
+                    <div class="rl-step-num">03</div>
+                    <div class="rl-step-body">
+                        <p class="rl-step-title">Log your daily status</p>
+                        <p class="rl-step-desc">Start tracking your work entries from day one</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="rl-footer">WorkPulse &copy; @DateTime.Now.Year</div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="reg-right">
+
+        <p class="rr-title">Create an account</p>
+        <p class="rr-sub">Fill in the details below to register</p>
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="rc-alert success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                @ViewBag.Message
+            </div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="rc-alert error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                @ViewBag.Error
+            </div>
+        }
+
+        <form method="post" asp-action="Register" id="registerForm">
+
+            <!-- Username -->
+            <div class="rc-field">
+                <label class="rc-label">Username</label>
+                <div class="rc-input-wrap">
+                    <input type="text"
+                           name="username"
+                           class="rc-input"
+                           placeholder="Choose a username"
+                           required
+                           autocomplete="username" />
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="rc-field">
+                <label class="rc-label">Password</label>
+                <div class="rc-input-wrap">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="rc-input has-toggle"
+                           placeholder="••••••••"
+                           required
+                           autocomplete="new-password"
+                           oninput="onPasswordInput(this.value)" />
+                    <button type="button" class="rc-toggle-btn"
+                            onclick="togglePassword('password','eye1')">
+                        <svg id="eye1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Strength bars -->
+                <div class="rc-strength">
+                    <div class="rc-strength-bar" id="bar1"></div>
+                    <div class="rc-strength-bar" id="bar2"></div>
+                    <div class="rc-strength-bar" id="bar3"></div>
+                    <div class="rc-strength-bar" id="bar4"></div>
+                </div>
+                <span class="rc-strength-label" id="strengthLabel"></span>
+
+                <!-- Criteria -->
+                <div class="rc-criteria">
+                    <p class="rc-criteria-title">Password must contain</p>
+
+                    <div class="rc-rule unmet" id="rule-case">
+                        <div class="rc-rule-icon">
+                            <svg id="icon-case" viewBox="0 0 24 24" fill="none" stroke="#d1d5db"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        At least 1 uppercase and 1 lowercase letter
+                    </div>
+
+                    <div class="rc-rule unmet" id="rule-number">
+                        <div class="rc-rule-icon">
+                            <svg id="icon-number" viewBox="0 0 24 24" fill="none" stroke="#d1d5db"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        At least 1 number (0–9)
+                    </div>
+
+                    <div class="rc-rule unmet" id="rule-special">
+                        <div class="rc-rule-icon">
+                            <svg id="icon-special" viewBox="0 0 24 24" fill="none" stroke="#d1d5db"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        At least 1 special character (!&#64;#$%^&amp;*)
+                    </div>
+
+                    <div class="rc-rule unmet" id="rule-length">
+                        <div class="rc-rule-icon">
+                            <svg id="icon-length" viewBox="0 0 24 24" fill="none" stroke="#d1d5db"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        Minimum 8 characters
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="rc-field">
+                <label class="rc-label">Confirm Password</label>
+                <div class="rc-input-wrap">
+                    <input type="password"
+                           id="confirmPassword"
+                           name="confirmPassword"
+                           class="rc-input has-toggle"
+                           placeholder="••••••••"
+                           required
+                           autocomplete="new-password"
+                           oninput="onConfirmInput(this.value)" />
+                    <button type="button" class="rc-toggle-btn"
+                            onclick="togglePassword('confirmPassword','eye2')">
+                        <svg id="eye2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <span class="rc-match-hint" id="matchHint"></span>
+            </div>
+
+            <div class="rc-divider"></div>
+
+            <!-- Submit -->
+            <button type="submit" class="rc-submit" id="submitBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="19" y1="8" x2="19" y2="14"/>
+                    <line x1="22" y1="11" x2="16" y2="11"/>
+                </svg>
+                Create account
+            </button>
+
+            <div class="rc-login">
+                Already have an account? <a asp-action="Login">Sign in</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+    const eyeOpen   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    const checkIcon = `<polyline points="20 6 9 17 4 12"/>`;
+    const crossIcon = `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
+
+    function togglePassword(fieldId, iconId) {
+        const input = document.getElementById(fieldId);
+        const icon  = document.getElementById(iconId);
+        const isHidden = input.type === 'password';
+        input.type     = isHidden ? 'text' : 'password';
+        icon.innerHTML = isHidden ? eyeClosed : eyeOpen;
+    }
+
+    const rules = {
+        case:    val => /[A-Z]/.test(val) && /[a-z]/.test(val),
+        number:  val => /[0-9]/.test(val),
+        special: val => /[!@@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(val),
+        length:  val => val.length >= 8
+    };
+
+    function setRule(id, met, dirty) {
+        const row  = document.getElementById('rule-' + id);
+        const icon = document.getElementById('icon-' + id);
+        if (!dirty) {
+            row.className  = 'rc-rule unmet';
+            icon.innerHTML = checkIcon;
+            icon.setAttribute('stroke', '#d1d5db');
+            return;
+        }
+        row.className  = met ? 'rc-rule met' : 'rc-rule fail';
+        icon.innerHTML = met ? checkIcon : crossIcon;
+        icon.setAttribute('stroke', met ? '#22c55e' : '#ef4444');
+    }
+
+    function onPasswordInput(val) {
+        const dirty = val.length > 0;
+        const results = {
+            case:    rules.case(val),
+            number:  rules.number(val),
+            special: rules.special(val),
+            length:  rules.length(val)
+        };
+
+        Object.keys(results).forEach(k => setRule(k, results[k], dirty));
+
+        const score  = Object.values(results).filter(Boolean).length;
+        const bars   = ['bar1','bar2','bar3','bar4'];
+        const label  = document.getElementById('strengthLabel');
+        const levels = [
+            { cls: '',       text: '',       color: '' },
+            { cls: 'weak',   text: 'Weak',   color: '#ef4444' },
+            { cls: 'medium', text: 'Fair',   color: '#f59e0b' },
+            { cls: 'medium', text: 'Good',   color: '#f59e0b' },
+            { cls: 'strong', text: 'Strong', color: '#22c55e' }
+        ];
+
+        bars.forEach((b, i) => {
+            const el = document.getElementById(b);
+            el.className = 'rc-strength-bar';
+            if (dirty && i < score) el.classList.add(levels[score].cls);
+        });
+
+        label.textContent = dirty ? levels[score].text : '';
+        if (dirty) label.style.color = levels[score].color;
+
+        const confirm = document.getElementById('confirmPassword').value;
+        if (confirm.length > 0) onConfirmInput(confirm);
+
+        updateSubmit();
+    }
+
+    function onConfirmInput(val) {
+        const pass  = document.getElementById('password').value;
+        const hint  = document.getElementById('matchHint');
+        const input = document.getElementById('confirmPassword');
+
+        if (val.length === 0) {
+            hint.textContent = '';
+            hint.className   = 'rc-match-hint';
+            input.classList.remove('valid', 'invalid');
+            return;
+        }
+
+        const match = pass === val;
+        hint.textContent = match ? 'Passwords match' : 'Passwords do not match';
+        hint.className   = match ? 'rc-match-hint ok' : 'rc-match-hint fail';
+        input.classList.toggle('valid',   match);
+        input.classList.toggle('invalid', !match);
+
+        updateSubmit();
+    }
+
+    function updateSubmit() {
+        const pass    = document.getElementById('password').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        const allMet  = Object.values(rules).every(fn => fn(pass));
+        const matched = pass === confirm && confirm.length > 0;
+        document.getElementById('submitBtn').disabled = !(allMet && matched);
+    }
+</script>
+
+</body>
+</html>

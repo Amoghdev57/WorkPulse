@@ -1,4 +1,4 @@
-namespace WorkDailystatus.Models
+namespace WorkPulse.Models
 {
     public class ErrorViewModel
     {

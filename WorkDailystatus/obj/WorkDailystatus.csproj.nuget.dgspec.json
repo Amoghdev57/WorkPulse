@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj": {}
+    "C:\\Users\\Amogh Sinu\\source\\repos\\Workflowstatus-main\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj": {}
   },
   "projects": {
-    "D:\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj": {
+    "C:\\Users\\Amogh Sinu\\source\\repos\\Workflowstatus-main\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj",
+        "projectUniqueName": "C:\\Users\\Amogh Sinu\\source\\repos\\Workflowstatus-main\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj",
         "projectName": "WorkDailystatus",
-        "projectPath": "D:\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj",
+        "projectPath": "C:\\Users\\Amogh Sinu\\source\\repos\\Workflowstatus-main\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus.csproj",
         "packagesPath": "C:\\Users\\Amogh Sinu\\.nuget\\packages\\",
-        "outputPath": "D:\\WorkDailystatus\\WorkDailystatus\\obj\\",
+        "outputPath": "C:\\Users\\Amogh Sinu\\source\\repos\\Workflowstatus-main\\WorkDailystatus\\WorkDailystatus\\WorkDailystatus\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -42,13 +43,35 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
+          "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "MySql.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -68,7 +91,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100-rc.2.24474.11/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

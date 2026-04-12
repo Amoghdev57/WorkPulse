@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "D:\\WorkDailystatus\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -21,14 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|d:\\workdailystatus\\workdailystatus\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{2079F2C2-3B73-40FA-81C2-713866BBE2DA}|WorkDailystatus\\WorkDailystatus.csproj|solutionrelative:workdailystatus\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -41,8 +41,12 @@
           "SelectedChildIndex": 1,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 0,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "WorkDailystatus\\Views\\Home\\Index.cshtml",
@@ -55,20 +59,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "WorkDailystatus\\Controllers\\HomeController.cs",
               "ToolTip": "D:\\WorkDailystatus\\WorkDailystatus\\Controllers\\HomeController.cs",
               "RelativeToolTip": "WorkDailystatus\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAQwBEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-22T04:52:43.59Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "Login.cshtml",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Views\\Home\\Login.cshtml",
               "RelativeDocumentMoniker": "WorkDailystatus\\Views\\Home\\Login.cshtml",
@@ -81,7 +85,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "WorkDailystatus\\Views\\Shared\\_Layout.cshtml",
@@ -89,12 +93,11 @@
               "RelativeToolTip": "WorkDailystatus\\Views\\Shared\\_Layout.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAE0AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-10-22T04:43:56.638Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-22T04:43:56.638Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "Status.cshtml",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Views\\Home\\Status.cshtml",
               "RelativeDocumentMoniker": "WorkDailystatus\\Views\\Home\\Status.cshtml",
@@ -102,12 +105,11 @@
               "RelativeToolTip": "WorkDailystatus\\Views\\Home\\Status.cshtml",
               "ViewState": "AgIAABUAAAAAAAAAAAAAACEAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-10-22T04:42:17.004Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-22T04:42:17.004Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Program.cs",
               "RelativeDocumentMoniker": "WorkDailystatus\\Program.cs",
@@ -115,12 +117,11 @@
               "RelativeToolTip": "WorkDailystatus\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-21T07:32:02.914Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-21T07:32:02.914Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "StatusEntry.cs",
               "DocumentMoniker": "D:\\WorkDailystatus\\WorkDailystatus\\Models\\StatusEntry.cs",
               "RelativeDocumentMoniker": "WorkDailystatus\\Models\\StatusEntry.cs",
@@ -128,8 +129,7 @@
               "RelativeToolTip": "WorkDailystatus\\Models\\StatusEntry.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-21T07:29:46.646Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-21T07:29:46.646Z"
             }
           ]
         }

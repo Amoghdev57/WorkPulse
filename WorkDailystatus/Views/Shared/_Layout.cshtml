@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = null; // Set this layout in your login page if necessary
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -7,81 +7,524 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
 
-    <title>@ViewData["Title"] - WorkDailystatus</title>
+    <title>@ViewData["Title"] - WorkPulse</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WorkDailystatus.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'DM Sans', 'Segoe UI', sans-serif;
+            background: #f4f6fb;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ── */
+        .app-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            gap: 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Brand */
+        .nav-brand {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .nav-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: #1e3a5f;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+            .nav-brand-icon svg {
+                width: 17px;
+                height: 17px;
+                color: #ffffff;
+            }
+
+        .nav-brand-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            letter-spacing: -0.2px;
+        }
+
+            .nav-brand-name span {
+                color: #1e3a5f;
+            }
+
+        /* Separator */
+        .nav-sep {
+            width: 1px;
+            height: 22px;
+            background: #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        /* Nav links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+            .nav-link-item svg {
+                width: 15px;
+                height: 15px;
+                flex-shrink: 0;
+            }
+
+            .nav-link-item:hover {
+                color: #1e3a5f;
+                background: #f0f4f8;
+                text-decoration: none;
+            }
+
+            .nav-link-item.active {
+                color: #1e3a5f;
+                background: #e6edf5;
+                font-weight: 600;
+            }
+
+        /* Right side */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        /* Profile trigger */
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px 5px 5px;
+            border-radius: 30px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #374151;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+            .profile-btn:hover {
+                background: #f0f4f8;
+                border-color: #c7d7ed;
+                color: #111827;
+            }
+
+        /* Avatar — supports both img and initials fallback */
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1e3a5f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #ffffff;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+            .profile-avatar img {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                display: block;
+            }
+
+            .profile-avatar .nav-initials {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+                font-weight: 600;
+                color: #ffffff;
+            }
+
+        .profile-caret {
+            width: 14px;
+            height: 14px;
+            color: #9ca3af;
+            transition: transform 0.2s;
+        }
+
+            .profile-caret.open {
+                transform: rotate(180deg);
+            }
+
+        /* Dropdown */
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 1.5rem;
+            top: 68px;
+            width: 220px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+            overflow: hidden;
+            z-index: 2000;
+            animation: dropIn 0.15s ease;
+        }
+
+            .profile-dropdown.open {
+                display: block;
+            }
+
+        @@keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dd-header {
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fafbfc;
+        }
+
+        .dd-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 2px;
+        }
+
+        .dd-role {
+            font-size: 11px;
+            color: #9ca3af;
+            margin: 0;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .dd-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 16px;
+            font-size: 13.5px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.12s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+            .dd-item svg {
+                width: 15px;
+                height: 15px;
+                color: #9ca3af;
+                flex-shrink: 0;
+            }
+
+            .dd-item:hover {
+                background: #f9fafb;
+                text-decoration: none;
+                color: #111827;
+            }
+
+            .dd-item.danger {
+                color: #b91c1c;
+            }
+
+                .dd-item.danger svg {
+                    color: #ef4444;
+                }
+
+                .dd-item.danger:hover {
+                    background: #fef2f2;
+                }
+
+        .dd-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 2px 0;
+        }
+
+        /* ── PAGE CONTENT ── */
+        .page-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── FOOTER ── */
+        .app-footer {
+            margin-top: 4rem;
+            padding: 1.25rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            font-size: 12px;
+            color: #9ca3af;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .footer-right {
+            font-size: 12px;
+            color: #d1d5db;
+        }
+
+        /* ── RESPONSIVE ── */
+        @@media (max-width: 640px) {
+            .app-navbar {
+                padding: 0 1rem;
+                gap: 1rem;
+            }
+
+            .nav-brand-name {
+                display: none;
+            }
+
+            .nav-sep {
+                display: none;
+            }
+
+            .nav-link-item span {
+                display: none;
+            }
+
+            .nav-link-item {
+                padding: 6px 10px;
+            }
+
+            .page-content {
+                padding: 1.25rem 1rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-             
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house-chimney"> </i>Home </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Status"><i class="fa-solid fa-file-invoice"></i> Status</a>
-                        </li>
-                    </ul>
+    <!-- ── NAVBAR ── -->
+    <nav class="app-navbar">
 
-                    @if (Context.Session.GetString("IsAuthenticated") == "true")
-                    {
-                        <div class="nav-item dropdown" style="position: relative;">
-                            <button onclick="toggleProfileDropdown()" class="btn btn-light border-0" style="font-size: 20px;">
-                                <i class="fa-solid fa-id-card"></i> My Profile
-                            </button>
-
-                            <div id="profileDropdown" class="dropdown-menu dropdown-menu-end show" style="display: none; position: absolute; right: 0; top: 100%; z-index: 800;">
-                                <span class="dropdown-item-text">Hi,  @Context.Session.GetString("username")!</span>
-                                <div class="dropdown-divider"></div>
-                                <form asp-action="Logout" method="post" style="margin: 0;">
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fa-solid fa-right-from-bracket"> </i> Logout
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    }
-                </div>
+        <!-- Brand -->
+        <a class="nav-brand" href="/">
+            <div class="nav-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <path d="M8 21h8M12 17v4" />
+                </svg>
             </div>
-        </nav>
-    </header>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <span class="nav-brand-name">Work<span>Pulse</span></span>
+                <span style="font-size:10px;color:black;font-family:'DM Mono',monospace;letter-spacing:0.3px;line-height:1;font-weight:400;">Feel the rhythm of your work.</span>
+            </div>
+        </a>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+        <div class="nav-sep"></div>
+
+        <!-- Nav links -->
+        <div class="nav-links">
+            <a class="nav-link-item" asp-controller="Home" asp-action="Index">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+                    <path d="M9 21V12h6v9" />
+                </svg>
+                <span>Home</span>
+            </a>
+
+            <a class="nav-link-item" asp-controller="Home" asp-action="Status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <span>Status</span>
+            </a>
+        </div>
+
+        <!-- Right: profile -->
+        <div class="nav-right">
+            @if (Context.Session.GetString("IsAuthenticated") == "true")
+            {
+                var username = Context.Session.GetString("username") ?? "User";
+                var initials = username.Length >= 2 ? username.Substring(0, 2).ToUpper() : username.ToUpper();
+
+                <div style="position:relative;">
+                    <button class="profile-btn" onclick="toggleDropdown()" id="profileBtn">
+
+                        <!-- Avatar: loads profile image blob, falls back to initials on error -->
+                        <div class="profile-avatar">
+                            <img src="@Url.Action("ProfileImage", "Home")"
+                                 alt="@initials"
+                                 id="navProfileImg"
+                                 onerror="this.style.display='none';document.getElementById('navInitials').style.display='flex';" />
+                            <span class="nav-initials" id="navInitials" style="display:none;">@initials</span>
+                        </div>
+
+                        @username
+
+                        <svg class="profile-caret" id="profileCaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dd-header">
+                            <p class="dd-name">@username</p>
+                            <p class="dd-role">employee · active</p>
+                        </div>
+
+                        <div class="dd-divider"></div>
+
+                        <a class="dd-item" asp-controller="Home" asp-action="EmployeeProfile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                            </svg>
+                            My profile
+                        </a>
+
+                        <div class="dd-divider"></div>
+
+                        <form asp-action="Logout" method="post" style="margin:0;">
+                            <button type="submit" class="dd-item danger">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                    <polyline points="16 17 21 12 16 7" />
+                                    <line x1="21" y1="12" x2="9" y2="12" />
+                                </svg>
+                                Sign out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="page-content">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
+    <!-- ── FOOTER ── -->
+    <footer class="app-footer">
+        <span class="footer-left">WorkPulse · @DateTime.Now.Year</span>
+        <span class="footer-right">v1.0.0</span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        function toggleProfileDropdown() {
+        function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            const caret    = document.getElementById('profileCaret');
+            const isOpen   = dropdown.classList.contains('open');
+            dropdown.classList.toggle('open', !isOpen);
+            caret.classList.toggle('open', !isOpen);
         }
 
-        window.onclick = function (event) {
+        document.addEventListener('click', function (e) {
+            const btn      = document.getElementById('profileBtn');
             const dropdown = document.getElementById('profileDropdown');
-            const trigger = event.target.closest('.nav-item.dropdown');
-            if (!trigger && dropdown) {
-                dropdown.style.display = 'none';
+            if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+                document.getElementById('profileCaret')?.classList.remove('open');
             }
-        };
+        });
+
+        // Highlight active nav link
+        const links = document.querySelectorAll('.nav-link-item');
+        links.forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+
+        // If the profile image fails to load immediately (no photo in DB),
+        // make sure initials are shown and img is hidden on page load too.
+        window.addEventListener('load', function () {
+            const img      = document.getElementById('navProfileImg');
+            const initials = document.getElementById('navInitials');
+            if (img && (img.naturalWidth === 0 || !img.complete)) {
+                img.style.display      = 'none';
+                if (initials) initials.style.display = 'flex';
+            }
+        });
     </script>
+
 </body>
 </html>
-@{
-    Layout = null; // Set this layout in your login page if necessary
-}
-
-

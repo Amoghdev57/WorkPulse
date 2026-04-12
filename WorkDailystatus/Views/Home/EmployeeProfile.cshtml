@@ -1,0 +1,902 @@
+﻿@model WorkPulse.Models.EmployeeDetails
+
+@{
+    ViewData["Title"] = "Employee Profile";
+    bool hasData = Model != null && !string.IsNullOrEmpty(Model.Name);
+    bool hasPhoto = !string.IsNullOrEmpty(Model?.ProfileImagePath);
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .ep-root {
+        font-family: 'DM Sans', sans-serif;
+        padding: 2.5rem 1rem;
+        min-height: 520px;
+    }
+
+    .ep-card {
+        max-width: 640px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    /* HEADER */
+    .ep-header {
+        padding: 1.75rem 1.75rem 1.25rem;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: #fafbfc;
+    }
+
+    .ep-avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .ep-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(30,58,95,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 600;
+        color: #1e3a5f;
+        letter-spacing: -0.5px;
+        border: 2px solid rgba(30,58,95,0.15);
+        overflow: hidden;
+    }
+
+        .ep-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .ep-header-text {
+        flex: 1;
+    }
+
+    .ep-title {
+        font-size: 17px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+        letter-spacing: -0.2px;
+    }
+
+    .ep-subtitle {
+        font-size: 12px;
+        color: #6b7280;
+        margin: 3px 0 0;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .ep-company-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: #1e3a5f;
+        background: rgba(30,58,95,0.08);
+        border: 1px solid rgba(30,58,95,0.15);
+        border-radius: 20px;
+        padding: 2px 10px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    .ep-status-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: #EAF3DE;
+        color: #3B6D11;
+        border: 1px solid #97C459;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
+    }
+
+    /* BODY */
+    .ep-body {
+        padding: 1.5rem 1.75rem;
+    }
+
+    .ep-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 0.75rem;
+    }
+
+    .ep-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 1.25rem;
+    }
+
+    .ep-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 14px;
+        border-radius: 9px;
+        transition: background 0.15s;
+    }
+
+        .ep-row:hover {
+            background: #f9fafb;
+        }
+
+    .ep-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .ep-label svg {
+            width: 15px;
+            height: 15px;
+            opacity: 0.45;
+            flex-shrink: 0;
+        }
+
+    .ep-value {
+        font-size: 13px;
+        color: #111827;
+        font-weight: 500;
+        text-align: right;
+    }
+
+        .ep-value.mono {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: #1e3a5f;
+        }
+
+    .ep-divider {
+        height: 1px;
+        background: #f0f0f0;
+        margin: 0.75rem 0 1.25rem;
+    }
+
+    .ep-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    /* BUTTONS */
+    .ep-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border-radius: 9px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .ep-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .ep-btn:active {
+            transform: scale(0.98);
+        }
+
+        .ep-btn.primary {
+            background: #1e3a5f;
+            color: #ffffff;
+            border-color: #1e3a5f;
+        }
+
+            .ep-btn.primary:hover {
+                background: #152b48;
+                border-color: #152b48;
+                color: #ffffff;
+            }
+
+        .ep-btn.danger {
+            color: #A32D2D;
+            border-color: #F09595;
+            background: #FCEBEB;
+        }
+
+            .ep-btn.danger:hover {
+                background: #F7C1C1;
+                color: #A32D2D;
+            }
+
+    /* INPUTS */
+    .ep-input-group {
+        margin-bottom: 12px;
+    }
+
+    .ep-input-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .ep-input {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 9px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: #111827;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+        .ep-input::placeholder {
+            color: #d1d5db;
+        }
+
+        .ep-input:focus {
+            border-color: #1e3a5f;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+        }
+
+    /* ─── PHOTO UPLOAD (OFFICIAL SQUARE BOX) ─── */
+    .ep-img-upload {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+        padding: 16px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    /* Square box — official ID/passport style */
+    .ep-img-preview-box {
+        width: 80px;
+        height: 96px; /* 4:3 portrait ratio, like an ID card */
+        border-radius: 6px;
+        background: #eef1f6;
+        border: 1.5px solid #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 600;
+        color: #1e3a5f;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+        .ep-img-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* subtle "ID PHOTO" watermark when empty */
+        .ep-img-preview-box.empty::after {
+            content: 'PHOTO';
+            position: absolute;
+            bottom: 5px;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #9ca3af;
+            font-family: 'DM Mono', monospace;
+        }
+
+    .ep-img-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .ep-img-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+    .ep-img-sub {
+        font-size: 11px;
+        color: #9ca3af;
+        margin: 0 0 8px;
+    }
+
+    .ep-img-btn-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .ep-img-input {
+        display: none;
+    }
+
+    .ep-img-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .ep-img-btn:hover {
+            background: #f3f4f6;
+        }
+
+    .ep-img-btn-remove {
+        color: #A32D2D;
+        border-color: #F09595;
+        background: #FCEBEB;
+    }
+
+        .ep-img-btn-remove:hover {
+            background: #F7C1C1 !important;
+            color: #A32D2D;
+        }
+
+    .ep-two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* EMPTY */
+    .ep-empty {
+        text-align: center;
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .ep-empty-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 1rem;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    .ep-empty-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 4px;
+    }
+
+    .ep-empty-sub {
+        font-size: 13px;
+        color: #9ca3af;
+        margin: 0 0 1.25rem;
+    }
+
+    /* FOOTER */
+    .ep-footer {
+        padding: 0.85rem 1.75rem;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fafbfc;
+    }
+
+    .ep-footer-meta {
+        font-size: 11px;
+        color: #9ca3af;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* VALIDATION */
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+
+    .validation-summary-errors {
+        font-size: 13px;
+        color: #A32D2D;
+        background: #FCEBEB;
+        border: 1px solid #F09595;
+        border-radius: 9px;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+    }
+
+    .field-validation-error {
+        font-size: 12px;
+        color: #A32D2D;
+        margin-top: 3px;
+        display: block;
+    }
+</style>
+
+<div class="ep-root">
+    <div class="ep-card">
+
+        <!-- HEADER -->
+        <div class="ep-header">
+            <div class="ep-avatar-wrap">
+                <div class="ep-avatar">
+                    @if (hasPhoto)
+                    {
+                        <img src="@Model.ProfileImagePath" alt="Profile" />
+                    }
+                    else if (hasData)
+                    {
+                        var parts = Model!.Name.Trim().Split(' ');
+                        var initials = parts.Length >= 2 ? $"{parts[0][0]}{parts[^1][0]}" : parts[0][0].ToString();
+                        @initials.ToUpper()
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+                </div>
+            </div>
+            <div class="ep-header-text">
+                <p class="ep-title">@(hasData? Model!.Name : "No Profile")</p>
+                <p class="ep-subtitle">@(hasData ? $"{Model!.Designation} · {Model.Department}" : "Create a profile to get started")</p>
+                @if (hasData && !string.IsNullOrEmpty(Model!.Company))
+                {
+                    <span class="ep-company-tag">
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="2" y="7" width="12" height="8" rx="1" />
+                            <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+                        </svg>
+                        @Model.Company
+                    </span>
+                }
+            </div>
+            @if (hasData)
+            {
+                <span class="ep-status-badge">Active</span>
+            }
+        </div>
+
+        <!-- BODY -->
+        <div class="ep-body">
+
+            @if (hasData)
+            {
+                <!-- ── DISPLAY VIEW ── -->
+                <div id="displayView">
+                    <p class="ep-section-label">Profile details</p>
+                    <div class="ep-fields">
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+                                Full name
+                            </span>
+                            <span class="ep-value">@Model!.Name</span>
+                        </div>
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6l6 4 6-4" /></svg>
+                                Email address
+                            </span>
+                            <span class="ep-value">@Model.Email</span>
+                        </div>
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="12" height="8" rx="1" /><path d="M5 7V5a3 3 0 0 1 6 0v2" /></svg>
+                                Company
+                            </span>
+                            <span class="ep-value">@(string.IsNullOrEmpty(Model.Company) ? "—" : Model.Company)</span>
+                        </div>
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a5 5 0 0 1 5 5c0 3.5-5 9-5 9S3 9.5 3 6a5 5 0 0 1 5-5z" /><circle cx="8" cy="6" r="1.5" /></svg>
+                                Department
+                            </span>
+                            <span class="ep-value">@Model.Department</span>
+                        </div>
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="10" height="9" rx="1" /><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" /></svg>
+                                Designation
+                            </span>
+                            <span class="ep-value">@Model.Designation</span>
+                        </div>
+                        <div class="ep-row">
+                            <span class="ep-label">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5" /><path d="M5 8h6M5 5h6M5 11h4" /></svg>
+                                Employee code
+                            </span>
+                            <span class="ep-value mono">@Model.EmployeeCode</span>
+                        </div>
+                    </div>
+                    <div class="ep-divider"></div>
+                    <div class="ep-actions">
+                        <form asp-action="DeleteProfile" method="post" style="margin:0;">
+                            <input type="hidden" asp-for="EmployeeCode" />
+                            <button type="submit" class="ep-btn danger"
+                                    onclick="return confirm('Are you sure you want to delete this profile?')">
+                                Delete profile
+                            </button>
+                        </form>
+                        <button type="button" class="ep-btn" onclick="toggleEdit()">Edit</button>
+                    </div>
+                </div>
+
+                <!-- ── EDIT VIEW ── -->
+                <div id="editView" style="display:none;">
+                    <p class="ep-section-label">Edit profile</p>
+                    <form asp-action="EditProfile" method="post" id="editFormTag" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="validation-summary-errors"></div>
+
+                        <!-- Photo upload — official square box -->
+                        <div class="ep-img-upload">
+
+                            <!-- Square ID-style preview -->
+                            <div class="ep-img-preview-box @(!hasPhoto ? "empty" : "")" id="editPreview">
+                                @if (hasPhoto)
+                                {
+                                    <img id="editPreviewImg" src="@Model.ProfileImagePath" alt="Profile" />
+                                }
+                                else if (hasData)
+                                {
+                                    var parts2 = Model!.Name.Trim().Split(' ');
+                                    var ini2 = parts2.Length >= 2
+                                    ? $"{parts2[0][0]}{parts2[^1][0]}"
+                                    : parts2[0][0].ToString();
+                                    <span>@ini2.ToUpper()</span>
+                                }
+                                else
+                                {
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                                        <circle cx="12" cy="8" r="4" />
+                                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                    </svg>
+                                }
+                            </div>
+
+                            <!-- Info + buttons -->
+                            <div class="ep-img-info">
+                                <p class="ep-img-title">Profile photo</p>
+                                <p class="ep-img-sub">JPG, PNG or GIF · Max 2 MB · Portrait preferred</p>
+                                <div class="ep-img-btn-row">
+                                    <label class="ep-img-btn" for="editImageInput">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M8 2v9M4 7l4-5 4 5" />
+                                            <path d="M2 13h12" />
+                                        </svg>
+                                        Upload photo
+                                    </label>
+                                    <button type="button"
+                                            class="ep-img-btn ep-img-btn-remove"
+                                            id="editRemoveBtn"
+                                            style="display:@(hasPhoto ? "inline-flex" : "none");"
+                                            onclick="removeEditPhoto()">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M3 4h10M6 4V3h4v1M5 4l.5 9h5L11 4" />
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <input type="file" id="editImageInput" name="profileImage"
+                                   class="ep-img-input" accept="image/*"
+                                   onchange="onEditPhotoChosen(this)" />
+                            <input type="hidden" name="removeProfileImage" id="removeProfileImageFlag" value="false" />
+                        </div>
+
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Full name</label>
+                            <input asp-for="Name" class="ep-input" placeholder="Full name" />
+                            <span asp-validation-for="Name" class="field-validation-error"></span>
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Company</label>
+                            <input asp-for="Company" class="ep-input" placeholder="e.g. Acme Corp" />
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Employee code</label>
+                            <input asp-for="EmployeeCode" class="ep-input" placeholder="e.g. EMP-2024-0001" />
+                            <span asp-validation-for="EmployeeCode" class="field-validation-error"></span>
+                        </div>
+                        <div class="ep-two-col">
+                            <div class="ep-input-group">
+                                <label class="ep-input-label">Department</label>
+                                <input asp-for="Department" class="ep-input" placeholder="Department" />
+                                <span asp-validation-for="Department" class="field-validation-error"></span>
+                            </div>
+                            <div class="ep-input-group">
+                                <label class="ep-input-label">Designation</label>
+                                <input asp-for="Designation" class="ep-input" placeholder="Designation" />
+                                <span asp-validation-for="Designation" class="field-validation-error"></span>
+                            </div>
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Email address</label>
+                            <input asp-for="Email" class="ep-input" type="email" placeholder="email@company.com" />
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="ep-divider"></div>
+                        <div class="ep-actions">
+                            <button type="button" class="ep-btn" onclick="cancelEdit()">Cancel</button>
+                            <button type="submit" class="ep-btn primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <!-- ── EMPTY STATE ── -->
+                <div id="emptyState">
+                    <div class="ep-empty">
+                        <div class="ep-empty-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                                <circle cx="11" cy="7" r="4" />
+                                <path d="M3 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+                            </svg>
+                        </div>
+                        <p class="ep-empty-title">No profile created yet</p>
+                        <p class="ep-empty-sub">Create an employee profile to get started</p>
+                        <button type="button" class="ep-btn primary" onclick="toggleCreate()">+ Create profile</button>
+                    </div>
+                </div>
+
+                <!-- ── CREATE VIEW ── -->
+                <div id="createView" style="display:none;">
+                    <p class="ep-section-label">Create profile</p>
+                    <form asp-action="CreateProfile" method="post" enctype="multipart/form-data">
+
+                        <!-- Photo upload — official square box -->
+                        <div class="ep-img-upload">
+                            <div class="ep-img-preview-box empty" id="createPreview">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                                    <circle cx="12" cy="8" r="4" />
+                                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                </svg>
+                            </div>
+                            <div class="ep-img-info">
+                                <p class="ep-img-title">Profile photo</p>
+                                <p class="ep-img-sub">JPG, PNG or GIF · Max 2 MB · Portrait preferred</p>
+                                <div class="ep-img-btn-row">
+                                    <label class="ep-img-btn" for="createImageInput">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M8 2v9M4 7l4-5 4 5" />
+                                            <path d="M2 13h12" />
+                                        </svg>
+                                        Upload photo
+                                    </label>
+                                    <button type="button"
+                                            class="ep-img-btn ep-img-btn-remove"
+                                            id="createRemoveBtn"
+                                            style="display:none;"
+                                            onclick="removeCreatePhoto()">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M3 4h10M6 4V3h4v1M5 4l.5 9h5L11 4" />
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="file" id="createImageInput" name="profileImage"
+                                   class="ep-img-input" accept="image/*"
+                                   onchange="onCreatePhotoChosen(this)" />
+                        </div>
+
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Full name</label>
+                            <input asp-for="Name" class="ep-input" placeholder="Full name" />
+                            <span asp-validation-for="Name" class="field-validation-error"></span>
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Company</label>
+                            <input asp-for="Company" class="ep-input" placeholder="e.g. Acme Corp" />
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Employee code</label>
+                            <input asp-for="EmployeeCode" class="ep-input" placeholder="e.g. EMP-2024-0001" />
+                            <span asp-validation-for="EmployeeCode" class="field-validation-error"></span>
+                        </div>
+                        <div class="ep-two-col">
+                            <div class="ep-input-group">
+                                <label class="ep-input-label">Department</label>
+                                <input asp-for="Department" class="ep-input" placeholder="Department" />
+                                <span asp-validation-for="Department" class="field-validation-error"></span>
+                            </div>
+                            <div class="ep-input-group">
+                                <label class="ep-input-label">Designation</label>
+                                <input asp-for="Designation" class="ep-input" placeholder="Designation" />
+                                <span asp-validation-for="Designation" class="field-validation-error"></span>
+                            </div>
+                        </div>
+                        <div class="ep-input-group">
+                            <label class="ep-input-label">Email address</label>
+                            <input asp-for="Email" class="ep-input" type="email" placeholder="email@company.com" />
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="ep-divider"></div>
+                        <div class="ep-actions">
+                            <button type="button" class="ep-btn" onclick="toggleCreate()">Cancel</button>
+                            <button type="submit" class="ep-btn primary">Save profile</button>
+                        </div>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <!-- FOOTER -->
+        <div class="ep-footer">
+            <span class="ep-footer-meta">@(hasData? Model!.EmployeeCode : "—")</span>
+            <span class="ep-footer-meta">Employee profile</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ── VIEW TOGGLES ── */
+    function toggleEdit() {
+        document.getElementById('displayView').style.display = 'none';
+        document.getElementById('editView').style.display = 'block';
+    }
+
+    function cancelEdit() {
+        document.getElementById('editFormTag').reset();
+        // Restore original preview state
+        var removeBtn = document.getElementById('editRemoveBtn');
+        var flag = document.getElementById('removeProfileImageFlag');
+        if (flag) flag.value = 'false';
+
+        // If there was an original photo, restore it
+        var originalSrc = '@(hasPhoto? Model?.ProfileImagePath : "")';
+        var preview = document.getElementById('editPreview');
+        if (originalSrc) {
+            preview.classList.remove('empty');
+            preview.innerHTML = '<img src="' + originalSrc + '" style="width:100%;height:100%;object-fit:cover;display:block;" />';
+            if (removeBtn) removeBtn.style.display = 'inline-flex';
+        } else {
+            // Restore initials / placeholder
+            preview.classList.add('empty');
+            @if (hasData)
+            {
+                    var cancelParts = Model!.Name.Trim().Split(' ');
+                    var cancelInitials = cancelParts.Length >= 2
+                            ? $"{cancelParts[0][0]}{cancelParts[^1][0]}"
+                            : cancelParts[0][0].ToString();
+                    <text>
+                    preview.innerHTML = '<span>@cancelInitials.ToUpper()</span>';
+                    </text>
+            }
+            else
+            {
+                    <text>
+                    preview.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+                    </text>
+            }
+            if (removeBtn) removeBtn.style.display = 'none';
+        }
+
+        document.getElementById('editView').style.display = 'none';
+        document.getElementById('displayView').style.display = 'block';
+    }
+
+    function toggleCreate() {
+        var empty = document.getElementById('emptyState');
+        var create = document.getElementById('createView');
+        if (create.style.display === 'none') {
+            empty.style.display = 'none';
+            create.style.display = 'block';
+        } else {
+            create.style.display = 'none';
+            empty.style.display = 'block';
+        }
+    }
+
+    /* ── EDIT PHOTO ── */
+    function onEditPhotoChosen(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var preview = document.getElementById('editPreview');
+            preview.classList.remove('empty');
+            preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;display:block;" />';
+            document.getElementById('editRemoveBtn').style.display = 'inline-flex';
+            document.getElementById('removeProfileImageFlag').value = 'false';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function removeEditPhoto() {
+        var preview = document.getElementById('editPreview');
+        preview.classList.add('empty');
+        @if (hasData)
+        {
+                var rParts = Model!.Name.Trim().Split(' ');
+                var rIni = rParts.Length >= 2
+                        ? $"{rParts[0][0]}{rParts[^1][0]}"
+                        : rParts[0][0].ToString();
+                <text>
+                preview.innerHTML = '<span>@rIni.ToUpper()</span>';
+                </text>
+        }
+        else
+        {
+                <text>
+                preview.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+                </text>
+        }
+        document.getElementById('editImageInput').value = '';
+        document.getElementById('editRemoveBtn').style.display = 'none';
+        document.getElementById('removeProfileImageFlag').value = 'true';
+    }
+
+    /* ── CREATE PHOTO ── */
+    function onCreatePhotoChosen(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var preview = document.getElementById('createPreview');
+            preview.classList.remove('empty');
+            preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;display:block;" />';
+            document.getElementById('createRemoveBtn').style.display = 'inline-flex';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function removeCreatePhoto() {
+        var preview = document.getElementById('createPreview');
+        preview.classList.add('empty');
+        preview.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+        document.getElementById('createImageInput').value = '';
+        document.getElementById('createRemoveBtn').style.display = 'none';
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
