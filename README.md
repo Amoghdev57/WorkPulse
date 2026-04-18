@@ -123,8 +123,7 @@ WorkPulse/
 - [x] Attendance tracker
 - [x] Reimbursements & expense claims
 - [x] Company announcements
-- [ ] Leave application & tracking
-- [ ] Raise a Request (PF, Form 16, etc.)
+
 
 ---
 
