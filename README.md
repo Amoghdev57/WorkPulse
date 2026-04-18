@@ -41,21 +41,6 @@ WorkPulse is an employee self-service web application that lets you log daily wo
 ### Employee Profile
 ![Employee Profile](./screenshots/Employee-Profile.png)
 
-### Holiday Calendar
-![Holidays](./screenshots/Holidays.png)
-
-### Salary
-![Salary](./screenshots/Salary.png)
-
-### Attendance
-![Attendance](./screenshots/Attendance.png)
-
-### Reimbursements
-![Reimbursements](./screenshots/Reimbursements.png)
-
-### Announcements
-![Announcements](./screenshots/Announcements.png)
-
 ---
 
 ## 🛠️ Tech Stack
