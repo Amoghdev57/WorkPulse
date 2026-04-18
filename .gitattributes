@@ -1,0 +1,4 @@
+*.cshtml linguist-language=C#
+*.cs linguist-language=C#
+*.css linguist-language=CSS
+*.js linguist-language=JavaScript
