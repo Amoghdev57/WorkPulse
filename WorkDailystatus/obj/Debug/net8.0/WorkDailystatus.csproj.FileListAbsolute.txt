@@ -229,3 +229,4 @@ C:\Users\Amogh Sinu\source\repos\Workflowstatus-main\WorkDailystatus\WorkDailyst
 C:\Users\Amogh Sinu\source\repos\Workflowstatus-main\WorkDailystatus\WorkDailystatus\WorkDailystatus\obj\Debug\net8.0\WorkDailystatus.pdb
 C:\Users\Amogh Sinu\source\repos\Workflowstatus-main\WorkDailystatus\WorkDailystatus\WorkDailystatus\obj\Debug\net8.0\WorkDailystatus.genruntimeconfig.cache
 C:\Users\Amogh Sinu\source\repos\Workflowstatus-main\WorkDailystatus\WorkDailystatus\WorkDailystatus\obj\Debug\net8.0\ref\WorkDailystatus.dll
+C:\Users\Amogh Sinu\source\repos\Workflowstatus-main\WorkDailystatus\WorkDailystatus\WorkDailystatus\bin\Debug\net8.0\itextsharp.dll

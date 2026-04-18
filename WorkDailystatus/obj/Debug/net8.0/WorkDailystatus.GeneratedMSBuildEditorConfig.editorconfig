@@ -22,8 +22,20 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Announcements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBbm5vdW5jZW1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Attendance.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBdHRlbmRhbmNlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/EmployeeProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxFbXBsb3llZVByb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Holidays.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxIb2xpZGF5cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Index.cshtml]
@@ -36,6 +48,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Reimbursements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxSZWltYnVyc2VtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Salary.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTYWxhcnkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Amogh Sinu/source/repos/Workflowstatus-main/WorkDailystatus/WorkDailystatus/WorkDailystatus/Views/Home/Status.cshtml]

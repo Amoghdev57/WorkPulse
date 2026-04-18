@@ -2,6 +2,10 @@ using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using WorkPulse.Models;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.draw;
+
 
 namespace WorkPulse.Controllers
 {
@@ -190,6 +194,25 @@ namespace WorkPulse.Controllers
         {
             if (HttpContext.Session.GetString("IsAuthenticated") != "true")
                 return RedirectToAction("Login");
+            return View();
+        }
+
+        public IActionResult Holidays()
+        {
+            return View();
+        }
+        public IActionResult Attendance()
+        {
+            return View();
+        }
+
+        public IActionResult Reimbursements()
+        {
+            return View();
+        }
+
+        public IActionResult Announcements()
+        {
             return View();
         }
 
@@ -511,6 +534,328 @@ namespace WorkPulse.Controllers
                 shiftCmd.ExecuteNonQuery();
             }
             return RedirectToAction("Status");
+        }
+
+        // ── SALARY ───────────────────────────────────────────────────────────────
+
+        public IActionResult Salary()
+        {
+            if (HttpContext.Session.GetString("IsAuthenticated") != "true")
+                return RedirectToAction("Login");
+
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            var list = new List<WorkPulse.Models.SalaryEntry>();
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var cmd = new MySqlCommand(
+                    "SELECT * FROM salary_details WHERE user_id=@uid ORDER BY year DESC, month DESC",
+                    conn);
+                cmd.Parameters.AddWithValue("@uid", userId);
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(new WorkPulse.Models.SalaryEntry
+                    {
+                        Id = Convert.ToInt32(reader["id"]),
+                        UserId = Convert.ToInt32(reader["user_id"]),
+                        Month = Convert.ToInt32(reader["month"]),
+                        Year = Convert.ToInt32(reader["year"]),
+                        BasicSalary = Convert.ToDecimal(reader["basic_salary"]),
+                        HRA = Convert.ToDecimal(reader["hra"]),
+                        Bonus = Convert.ToDecimal(reader["bonus"]),
+                        PFDeduction = Convert.ToDecimal(reader["pf_deduction"]),
+                        TaxDeduction = Convert.ToDecimal(reader["tax_deduction"]),
+                        NetPay = Convert.ToDecimal(reader["net_pay"])
+                    });
+                }
+            }
+            return View(list);
+        }
+
+        [HttpPost]
+        public IActionResult AddSalary(int month, int year, decimal basicSalary,
+            decimal hra, decimal bonus, decimal pfDeduction,
+            decimal taxDeduction, decimal netPay)
+        {
+            if (HttpContext.Session.GetString("IsAuthenticated") != "true")
+                return RedirectToAction("Login");
+
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                // Upsert — update if exists, insert if not
+                var cmd = new MySqlCommand(@"
+            INSERT INTO salary_details
+                (user_id, month, year, basic_salary, hra, bonus, pf_deduction, tax_deduction, net_pay)
+            VALUES
+                (@uid, @month, @year, @basic, @hra, @bonus, @pf, @tax, @net)
+            ON DUPLICATE KEY UPDATE
+                basic_salary  = @basic,
+                hra           = @hra,
+                bonus         = @bonus,
+                pf_deduction  = @pf,
+                tax_deduction = @tax,
+                net_pay       = @net", conn);
+
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@month", month);
+                cmd.Parameters.AddWithValue("@year", year);
+                cmd.Parameters.AddWithValue("@basic", basicSalary);
+                cmd.Parameters.AddWithValue("@hra", hra);
+                cmd.Parameters.AddWithValue("@bonus", bonus);
+                cmd.Parameters.AddWithValue("@pf", pfDeduction);
+                cmd.Parameters.AddWithValue("@tax", taxDeduction);
+                cmd.Parameters.AddWithValue("@net", netPay);
+                cmd.ExecuteNonQuery();
+            }
+            return RedirectToAction("Salary");
+        }
+
+        public IActionResult DownloadPayslip(int id)
+        {
+            if (HttpContext.Session.GetString("IsAuthenticated") != "true")
+                return RedirectToAction("Login");
+
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            WorkPulse.Models.SalaryEntry? entry = null;
+            string empName = HttpContext.Session.GetString("username") ?? "Employee";
+            string empCode = "", dept = "", desig = "";
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                // Get salary entry
+                var cmd = new MySqlCommand(
+                    "SELECT * FROM salary_details WHERE id=@id AND user_id=@uid", conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@uid", userId);
+                using (var r = cmd.ExecuteReader())
+                {
+                    if (r.Read())
+                    {
+                        entry = new WorkPulse.Models.SalaryEntry
+                        {
+                            Id = Convert.ToInt32(r["id"]),
+                            Month = Convert.ToInt32(r["month"]),
+                            Year = Convert.ToInt32(r["year"]),
+                            BasicSalary = Convert.ToDecimal(r["basic_salary"]),
+                            HRA = Convert.ToDecimal(r["hra"]),
+                            Bonus = Convert.ToDecimal(r["bonus"]),
+                            PFDeduction = Convert.ToDecimal(r["pf_deduction"]),
+                            TaxDeduction = Convert.ToDecimal(r["tax_deduction"]),
+                            NetPay = Convert.ToDecimal(r["net_pay"])
+                        };
+                    }
+                }
+
+                if (entry == null) return NotFound();
+
+                // Get employee details
+                var empCmd = new MySqlCommand(
+                    "SELECT name, employee_code, department, designation FROM employee_details WHERE user_id=@uid",
+                    conn);
+                empCmd.Parameters.AddWithValue("@uid", userId);
+                using var er = empCmd.ExecuteReader();
+                if (er.Read())
+                {
+                    empName = er["name"].ToString() ?? empName;
+                    empCode = er["employee_code"].ToString() ?? "";
+                    dept = er["department"].ToString() ?? "";
+                    desig = er["designation"].ToString() ?? "";
+                }
+            }
+
+            // ── Generate PDF with iTextSharp ──
+            using var ms = new MemoryStream();
+            var doc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 40, 40, 40, 40);
+            var writer = iTextSharp.text.pdf.PdfWriter.GetInstance(doc, ms);
+            doc.Open();
+
+            // Fonts
+            var fontTitle = iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 18,
+                                 new iTextSharp.text.BaseColor(30, 58, 95));
+            var fontH2 = iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 11,
+                                 new iTextSharp.text.BaseColor(30, 58, 95));
+            var fontBold = iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 10,
+                                 iTextSharp.text.BaseColor.BLACK);
+            var fontNormal = iTextSharp.text.FontFactory.GetFont("Helvetica", 10,
+                                 new iTextSharp.text.BaseColor(55, 65, 81));
+            var fontSmall = iTextSharp.text.FontFactory.GetFont("Helvetica", 9,
+                                 new iTextSharp.text.BaseColor(107, 114, 128));
+            var fontGreen = iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 11,
+                                 new iTextSharp.text.BaseColor(22, 163, 74));
+            var fontRed = iTextSharp.text.FontFactory.GetFont("Helvetica", 10,
+                                 new iTextSharp.text.BaseColor(220, 38, 38));
+            var white = iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 14,
+                                 iTextSharp.text.BaseColor.WHITE);
+            var whiteSmall = iTextSharp.text.FontFactory.GetFont("Helvetica", 9,
+                                 new iTextSharp.text.BaseColor(147, 173, 200));
+
+            var navy = new iTextSharp.text.BaseColor(30, 58, 95);
+            var light = new iTextSharp.text.BaseColor(244, 246, 251);
+            var lineC = new iTextSharp.text.BaseColor(229, 231, 235);
+
+            string monthYear = new DateTime(entry.Year, entry.Month, 1).ToString("MMMM yyyy");
+
+            // ── HEADER BANNER ──
+            var headerTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+            headerTable.SetWidths(new float[] { 2f, 1f });
+
+            var leftCell = new iTextSharp.text.pdf.PdfPCell
+            {
+                BackgroundColor = navy,
+                Border = iTextSharp.text.Rectangle.NO_BORDER,
+                Padding = 18
+            };
+            leftCell.AddElement(new iTextSharp.text.Paragraph("WorkPulse", white));
+            leftCell.AddElement(new iTextSharp.text.Paragraph("Employee Payslip", whiteSmall));
+            headerTable.AddCell(leftCell);
+
+            var rightCell = new iTextSharp.text.pdf.PdfPCell
+            {
+                BackgroundColor = navy,
+                Border = iTextSharp.text.Rectangle.NO_BORDER,
+                Padding = 18,
+                HorizontalAlignment = iTextSharp.text.Element.ALIGN_RIGHT
+            };
+            rightCell.AddElement(new iTextSharp.text.Paragraph(monthYear, white)
+            { Alignment = iTextSharp.text.Element.ALIGN_RIGHT });
+            headerTable.AddCell(rightCell);
+            doc.Add(headerTable);
+
+            doc.Add(new iTextSharp.text.Paragraph(" "));
+
+            // ── EMPLOYEE INFO ──
+            var infoTable = new iTextSharp.text.pdf.PdfPTable(4) { WidthPercentage = 100 };
+            infoTable.SetWidths(new float[] { 1f, 2f, 1f, 2f });
+
+            void AddInfoRow(string k1, string v1, string k2, string v2)
+            {
+                infoTable.AddCell(new iTextSharp.text.pdf.PdfPCell(
+                    new iTextSharp.text.Phrase(k1, fontSmall))
+                { Border = iTextSharp.text.Rectangle.NO_BORDER, PaddingBottom = 5 });
+                infoTable.AddCell(new iTextSharp.text.pdf.PdfPCell(
+                    new iTextSharp.text.Phrase(v1, fontBold))
+                { Border = iTextSharp.text.Rectangle.NO_BORDER, PaddingBottom = 5 });
+                infoTable.AddCell(new iTextSharp.text.pdf.PdfPCell(
+                    new iTextSharp.text.Phrase(k2, fontSmall))
+                { Border = iTextSharp.text.Rectangle.NO_BORDER, PaddingBottom = 5 });
+                infoTable.AddCell(new iTextSharp.text.pdf.PdfPCell(
+                    new iTextSharp.text.Phrase(v2, fontBold))
+                { Border = iTextSharp.text.Rectangle.NO_BORDER, PaddingBottom = 5 });
+            }
+
+            AddInfoRow("Employee", empName, "Emp Code", empCode);
+            AddInfoRow("Department", dept, "Designation", desig);
+            AddInfoRow("Pay Period", monthYear, "Pay Date", DateTime.Now.ToString("dd MMM yyyy"));
+            doc.Add(infoTable);
+
+            // doc.Add(new iTextSharp.text.pdf.LineSeparator(0.5f, 100f, lineC, iTextSharp.text.Element.ALIGN_CENTER, -4));
+            // doc.Add(new iTextSharp.text.Paragraph(" "));
+
+            doc.Add(new iTextSharp.text.pdf.draw.LineSeparator(0.5f, 100f, lineC, iTextSharp.text.Element.ALIGN_CENTER, -4));
+            doc.Add(new iTextSharp.text.Paragraph(" "));
+
+            // ── EARNINGS & DEDUCTIONS ──
+            var salTable = new iTextSharp.text.pdf.PdfPTable(4) { WidthPercentage = 100 };
+            salTable.SetWidths(new float[] { 2f, 1.5f, 2f, 1.5f });
+
+            iTextSharp.text.pdf.PdfPCell HeaderCell(string t) =>
+                new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(t, fontH2))
+                {
+                    BackgroundColor = light,
+                    Border = iTextSharp.text.Rectangle.NO_BORDER,
+                    Padding = 8,
+                    PaddingBottom = 10
+                };
+
+            iTextSharp.text.pdf.PdfPCell DataCell(string t, iTextSharp.text.Font f, int align = iTextSharp.text.Element.ALIGN_LEFT) =>
+                new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(t, f))
+                {
+                    Border = iTextSharp.text.Rectangle.BOTTOM_BORDER,
+                    BorderColor = lineC,
+                    BorderWidth = 0.5f,
+                    Padding = 7,
+                    HorizontalAlignment = align
+                };
+
+            salTable.AddCell(HeaderCell("Earnings"));
+            salTable.AddCell(HeaderCell("Amount (₹)"));
+            salTable.AddCell(HeaderCell("Deductions"));
+            salTable.AddCell(HeaderCell("Amount (₹)"));
+
+            string Fmt(decimal v) => v.ToString("N2");
+
+            salTable.AddCell(DataCell("Basic Salary", fontNormal));
+            salTable.AddCell(DataCell(Fmt(entry.BasicSalary), fontNormal, iTextSharp.text.Element.ALIGN_RIGHT));
+            salTable.AddCell(DataCell("PF (12% of Basic)", fontNormal));
+            salTable.AddCell(DataCell(Fmt(entry.PFDeduction), fontRed, iTextSharp.text.Element.ALIGN_RIGHT));
+
+            salTable.AddCell(DataCell("HRA (40% of Basic)", fontNormal));
+            salTable.AddCell(DataCell(Fmt(entry.HRA), fontNormal, iTextSharp.text.Element.ALIGN_RIGHT));
+            salTable.AddCell(DataCell("Tax / TDS (10% of Basic)", fontNormal));
+            salTable.AddCell(DataCell(Fmt(entry.TaxDeduction), fontRed, iTextSharp.text.Element.ALIGN_RIGHT));
+
+            salTable.AddCell(DataCell("Bonus", fontNormal));
+            salTable.AddCell(DataCell(Fmt(entry.Bonus), fontNormal, iTextSharp.text.Element.ALIGN_RIGHT));
+            salTable.AddCell(DataCell("", fontNormal));
+            salTable.AddCell(DataCell("", fontNormal));
+
+            // Totals row
+            iTextSharp.text.pdf.PdfPCell TotalCell(string t, iTextSharp.text.Font f) =>
+                new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(t, f))
+                {
+                    BackgroundColor = light,
+                    Border = iTextSharp.text.Rectangle.NO_BORDER,
+                    Padding = 9
+                };
+
+            salTable.AddCell(TotalCell("Gross Pay", fontBold));
+            salTable.AddCell(TotalCell(Fmt(entry.GrossPay), fontBold));
+            salTable.AddCell(TotalCell("Total Deductions", fontBold));
+            salTable.AddCell(TotalCell(Fmt(entry.TotalDeductions), fontBold));
+
+            doc.Add(salTable);
+            doc.Add(new iTextSharp.text.Paragraph(" "));
+
+            // ── NET PAY BOX ──
+            var netTable = new iTextSharp.text.pdf.PdfPTable(1) { WidthPercentage = 100 };
+            var netCell = new iTextSharp.text.pdf.PdfPCell
+            {
+                BackgroundColor = navy,
+                Border = iTextSharp.text.Rectangle.NO_BORDER,
+                Padding = 14,
+                HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER
+            };
+            netCell.AddElement(new iTextSharp.text.Paragraph(
+                $"Net Take-Home Pay:  ₹{entry.NetPay:N2}",
+                iTextSharp.text.FontFactory.GetFont("Helvetica-Bold", 14, iTextSharp.text.BaseColor.WHITE))
+            { Alignment = iTextSharp.text.Element.ALIGN_CENTER });
+            netTable.AddCell(netCell);
+            doc.Add(netTable);
+
+            doc.Add(new iTextSharp.text.Paragraph(" "));
+            doc.Add(new iTextSharp.text.Paragraph(
+                "This is a system generated payslip. — WorkPulse",
+                iTextSharp.text.FontFactory.GetFont("Helvetica", 8,
+                    new iTextSharp.text.BaseColor(156, 163, 175)))
+            { Alignment = iTextSharp.text.Element.ALIGN_CENTER });
+
+            doc.Close();
+
+            string fileName = $"Payslip_{empName.Replace(" ", "_")}_{monthYear.Replace(" ", "_")}.pdf";
+            return File(ms.ToArray(), "application/pdf", fileName);
         }
 
         // ── LOGOUT ────────────────────────────────────────────────────────────

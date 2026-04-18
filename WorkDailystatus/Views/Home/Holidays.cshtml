@@ -1,0 +1,688 @@
+﻿@{
+    ViewData["Title"] = "Holidays";
+    var today = DateTime.Today;
+
+    var holidays = new List<(string Name, string Date, string Type, DateTime dt)>
+    {
+        ("New Year's Day",          "Jan 1",  "National",  new DateTime(2026,1,1)),
+        ("Makar Sankranti",         "Jan 14", "Festival",  new DateTime(2026,1,14)),
+        ("Republic Day",            "Jan 26", "National",  new DateTime(2026,1,26)),
+        ("Maha Shivaratri",         "Feb 26", "Festival",  new DateTime(2026,2,26)),
+        ("Holi",                    "Mar 20", "Festival",  new DateTime(2026,3,20)),
+        ("Ugadi / Gudi Padwa",      "Mar 29", "Festival",  new DateTime(2026,3,29)),
+        ("Ram Navami",              "Apr 7",  "Festival",  new DateTime(2026,4,7)),
+        ("Mahavir Jayanti",         "Apr 8",  "Festival",  new DateTime(2026,4,8)),
+        ("Good Friday",             "Apr 3",  "Festival",  new DateTime(2026,4,3)),
+        ("Dr. Ambedkar Jayanti",    "Apr 14", "National",  new DateTime(2026,4,14)),
+        ("Buddha Purnima",          "May 24", "Festival",  new DateTime(2026,5,24)),
+        ("Eid ul-Adha",             "Jun 7",  "Festival",  new DateTime(2026,6,7)),
+        ("Muharram",                "Jul 27", "Festival",  new DateTime(2026,7,27)),
+        ("Independence Day",        "Aug 15", "National",  new DateTime(2026,8,15)),
+        ("Janmashtami",             "Aug 23", "Festival",  new DateTime(2026,8,23)),
+        ("Ganesh Chaturthi",        "Sep 11", "Festival",  new DateTime(2026,9,11)),
+        ("Gandhi Jayanti",          "Oct 2",  "National",  new DateTime(2026,10,2)),
+        ("Dussehra",                "Oct 20", "Festival",  new DateTime(2026,10,20)),
+        ("Diwali",                  "Nov 8",  "Festival",  new DateTime(2026,11,8)),
+        ("Bhai Dooj",               "Nov 10", "Festival",  new DateTime(2026,11,10)),
+        ("Guru Nanak Jayanti",      "Nov 25", "Festival",  new DateTime(2026,11,25)),
+        ("Christmas Day",           "Dec 25", "Festival",  new DateTime(2026,12,25)),
+    };
+
+    var upcoming = holidays.Where(h => h.dt >= today).OrderBy(h => h.dt).Take(3).ToList();
+    var nextHoliday = upcoming.FirstOrDefault();
+    var daysToNext = nextHoliday.dt != default ? (nextHoliday.dt - today).Days : 0;
+    var remaining = holidays.Count(h => h.dt >= today);
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .hol-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
+
+    /* ── BACK LINK ── */
+    .hol-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+        .hol-back:hover {
+            color: #1e3a5f;
+            text-decoration: none;
+        }
+
+        .hol-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* ── PAGE HEADER ── */
+    .hol-header {
+        background: #1e3a5f;
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+        .hol-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+
+        .hol-header::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 70%);
+            right: -60px;
+            top: -80px;
+            pointer-events: none;
+        }
+
+    .hol-header-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hol-header-eyebrow {
+        font-size: 11px;
+        color: #93c5fd;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+    }
+
+    .hol-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .hol-header-sub {
+        font-size: 13.5px;
+        color: #93adc8;
+        margin: 0;
+    }
+
+    .hol-header-icon {
+        position: relative;
+        z-index: 1;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .hol-header-icon svg {
+            width: 26px;
+            height: 26px;
+            color: #93c5fd;
+        }
+
+    /* ── SECTION LABEL ── */
+    .hol-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 0.75rem;
+    }
+
+    /* ── SUMMARY LAYOUT ── */
+    .hol-summary {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 16px;
+        margin-bottom: 2rem;
+    }
+
+    /* next holiday card */
+    .hnc {
+        background: #1e3a5f;
+        border-radius: 14px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        min-height: 160px;
+    }
+
+        .hnc::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+    .hnc-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #4a7a9b;
+        font-family: 'DM Mono', monospace;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hnc-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        margin: 8px 0 4px;
+        position: relative;
+        z-index: 1;
+        line-height: 1.3;
+    }
+
+    .hnc-date {
+        font-size: 12px;
+        color: #93adc8;
+        font-family: 'DM Mono', monospace;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hnc-days {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 1rem;
+        font-size: 12px;
+        color: #93c5fd;
+        font-weight: 500;
+    }
+
+    .hnc-days-num {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* stats + upcoming */
+    .hol-stats-col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hstat-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .hstat {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 11px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .hstat-num {
+        font-size: 22px;
+        font-weight: 600;
+        color: #111827;
+        font-family: 'DM Mono', monospace;
+        line-height: 1;
+    }
+
+    .hstat-label {
+        font-size: 11px;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+
+    .upcoming-list {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 11px;
+        overflow: hidden;
+    }
+
+    .upcoming-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #f9fafb;
+        font-size: 13px;
+    }
+
+        .upcoming-item:last-child {
+            border-bottom: none;
+        }
+
+    .upcoming-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+        .upcoming-dot.national {
+            background: #1e3a5f;
+        }
+
+        .upcoming-dot.festival {
+            background: #f59e0b;
+        }
+
+    .upcoming-name {
+        font-weight: 500;
+        color: #111827;
+        flex: 1;
+    }
+
+    .upcoming-date {
+        font-size: 11px;
+        color: #9ca3af;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .upcoming-badge {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+        .upcoming-badge.national {
+            background: #E6F1FB;
+            color: #1e3a5f;
+        }
+
+        .upcoming-badge.festival {
+            background: #FEF3C7;
+            color: #92400e;
+        }
+
+    /* ── FULL TABLE ── */
+    .hol-table-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .htable-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafafa;
+    }
+
+    .htable-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .htable-title svg {
+            width: 15px;
+            height: 15px;
+            color: #9ca3af;
+        }
+
+    .htable-count {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .htable-filters {
+        display: flex;
+        gap: 6px;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fff;
+    }
+
+    .hfilter-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 7px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.12s;
+    }
+
+        .hfilter-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .hfilter-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+            border-color: #1e3a5f;
+        }
+
+    table.htable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .htable thead tr {
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .htable th {
+        padding: 9px 16px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        text-align: left;
+    }
+
+    .htable td {
+        padding: 12px 16px;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+    }
+
+    .htable tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .htable tbody tr {
+        transition: background 0.1s;
+    }
+
+        .htable tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .htable tbody tr.past td {
+            opacity: 0.45;
+        }
+
+        .htable tbody tr.today-row td {
+            background: #f0f6ff;
+        }
+
+    .h-date-col {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #6b7280;
+        white-space: nowrap;
+    }
+
+    .h-day-col {
+        font-size: 12px;
+        color: #9ca3af;
+        white-space: nowrap;
+    }
+
+    .h-type-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+
+        .h-type-badge.national {
+            background: #E6F1FB;
+            color: #1e3a5f;
+        }
+
+        .h-type-badge.festival {
+            background: #FEF3C7;
+            color: #92400e;
+        }
+
+    .h-today-tag {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 8px;
+        background: #1e3a5f;
+        color: #fff;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .h-done-tag {
+        font-size: 10px;
+        color: #d1d5db;
+        margin-left: 4px;
+    }
+
+    @@media (max-width: 640px) {
+        .hol-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1.5rem;
+        }
+
+        .hol-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .hstat-row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="hol-root">
+
+    <!-- ── BACK ── -->
+    <a class="hol-back" href="/Home/Index">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="hol-header">
+        <div class="hol-header-text">
+            <p class="hol-header-eyebrow">Indian Holidays · @DateTime.Now.Year</p>
+            <h1 class="hol-header-title">Holiday Calendar</h1>
+            <p class="hol-header-sub">All national & festival holidays for @DateTime.Now.Year at a glance.</p>
+        </div>
+        <div class="hol-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- ── SUMMARY ── -->
+    <p class="hol-section-label">Overview</p>
+    <div class="hol-summary">
+
+        <!-- Next holiday -->
+        <div class="hnc">
+            <span class="hnc-label">Next holiday</span>
+            @if (nextHoliday.Name != null)
+            {
+                <div>
+                    <p class="hnc-name">@nextHoliday.Name</p>
+                    <p class="hnc-date">@nextHoliday.dt.ToString("dddd, dd MMM yyyy")</p>
+                </div>
+                <div class="hnc-days">
+                    <span class="hnc-days-num">@daysToNext</span>
+                    @(daysToNext == 0 ? "Today! 🎉" : daysToNext == 1 ? "day away" : "days away")
+                </div>
+            }
+            else
+            {
+                <p class="hnc-name" style="color:#93adc8;">No upcoming holidays</p>
+            }
+        </div>
+
+        <!-- Stats + upcoming 3 -->
+        <div class="hol-stats-col">
+            <div class="hstat-row">
+                <div class="hstat">
+                    <span class="hstat-num">@holidays.Count</span>
+                    <span class="hstat-label">Total holidays</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-num">@remaining</span>
+                    <span class="hstat-label">Remaining</span>
+                </div>
+            </div>
+
+            <div class="upcoming-list">
+                @foreach (var h in upcoming)
+                {
+                    var tc = h.Type.ToLower();
+                    <div class="upcoming-item">
+                        <div class="upcoming-dot @tc"></div>
+                        <span class="upcoming-name">@h.Name</span>
+                        <span class="upcoming-date">@h.dt.ToString("dd MMM")</span>
+                        <span class="upcoming-badge @tc">@h.Type</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FULL TABLE ── -->
+    <p class="hol-section-label">All holidays</p>
+    <div class="hol-table-card">
+        <div class="htable-header">
+            <p class="htable-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                All holidays @DateTime.Now.Year
+            </p>
+            <span class="htable-count">@holidays.Count</span>
+        </div>
+
+        <div class="htable-filters">
+            <button class="hfilter-btn active" onclick="filterHolidays('all', this)">All</button>
+            <button class="hfilter-btn" onclick="filterHolidays('upcoming', this)">Upcoming</button>
+            <button class="hfilter-btn" onclick="filterHolidays('national', this)">National</button>
+            <button class="hfilter-btn" onclick="filterHolidays('festival', this)">Festival</button>
+        </div>
+
+        <table class="htable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Holiday</th>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody id="holidayTableBody">
+                @for (int i = 0; i < holidays.Count; i++)
+                {
+                    var h = holidays[i];
+                    var isPast = h.dt < today;
+                    var isToday = h.dt == today;
+                    var rowClass = isToday ? "today-row" : isPast ? "past" : "";
+                    var typeClass = h.Type.ToLower();
+
+                    <tr class="@rowClass holiday-row"
+                        data-type="@typeClass"
+                        data-past="@isPast.ToString().ToLower()">
+                        <td style="font-family:'DM Mono',monospace;font-size:12px;color:#9ca3af;">@(i + 1)</td>
+                        <td>
+                            <span style="font-weight:500;color:#111827;">@h.Name</span>
+                            @if (isToday)
+                            {
+                                <span class="h-today-tag">Today</span>
+                            }
+                            @if (isPast)
+                            {
+                                <span class="h-done-tag">✓</span>
+                            }
+                        </td>
+                        <td class="h-date-col">@h.dt.ToString("dd MMM yyyy")</td>
+                        <td class="h-day-col">@h.dt.ToString("dddd")</td>
+                        <td><span class="h-type-badge @typeClass">@h.Type</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function filterHolidays(filter, btn) {
+        document.querySelectorAll('.hfilter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.holiday-row').forEach(row => {
+            const type = row.dataset.type;
+            const past = row.dataset.past === 'true';
+            let show = false;
+            if (filter === 'all')      show = true;
+            if (filter === 'upcoming') show = !past;
+            if (filter === 'national') show = type === 'national';
+            if (filter === 'festival') show = type === 'festival';
+            row.style.display = show ? '' : 'none';
+        });
+    }
+</script>

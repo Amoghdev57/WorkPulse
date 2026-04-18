@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home";
     var username = Context.Session.GetString("username") ?? "there";
+    var today = DateTime.Today;
 }
 
 <style>
@@ -8,7 +9,7 @@
 
     .dash-root {
         font-family: 'DM Sans', sans-serif;
-        max-width: 960px;
+        max-width: 980px;
         margin: 0 auto;
         padding: 2rem 0 3rem;
     }
@@ -65,7 +66,7 @@
         font-size: 24px;
         font-weight: 600;
         color: #ffffff;
-        margin: 0 0 6px;
+        margin: 0 0 6px; 
         letter-spacing: -0.3px;
     }
 
@@ -98,7 +99,7 @@
         font-family: 'DM Mono', monospace;
     }
 
-    /* ── QUICK LINKS ── */
+    /* ── SECTION LABEL ── */
     .dash-section-label {
         font-size: 10px;
         font-weight: 700;
@@ -108,11 +109,12 @@
         margin: 0 0 0.75rem;
     }
 
+    /* ── QUICK ACCESS CARDS ── */
     .dash-cards {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 12px;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
     }
 
     .dash-card {
@@ -210,7 +212,6 @@
             height: 12px;
         }
 
-    /* ── COMING SOON BADGE ── */
     .dash-soon {
         font-size: 10px;
         font-weight: 600;
@@ -223,7 +224,7 @@
         margin-top: auto;
         align-self: flex-start;
     }
-
+  
     @@media (max-width: 640px) {
         .dash-welcome {
             flex-direction: column;
@@ -238,6 +239,14 @@
         .dash-cards {
             grid-template-columns: 1fr 1fr;
         }
+
+        .holiday-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .hstat-row {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 </style>
 
@@ -246,9 +255,9 @@
     <!-- ── WELCOME BANNER ── -->
     <div class="dash-welcome">
         <div class="dash-welcome-text">
-            <p class="dash-welcome-greeting">Good @(DateTime.Now.Hour < 12 ? "morning" : DateTime.Now.Hour < 17 ? "afternoon" : "evening") ☀</p>
+            <p class="dash-welcome-greeting">Good @(DateTime.Now.Hour < 12 ? "morning" : DateTime.Now.Hour < 17 ? "afternoon" : "evening") ✦</p>
             <h1 class="dash-welcome-title">Welcome, @username!</h1>
-            <p class="dash-welcome-sub">Here's your employee dashboard. More features coming soon.</p>
+            <p class="dash-welcome-sub">Here's your employee dashboard for @DateTime.Now.ToString("yyyy").</p>
         </div>
         <div class="dash-welcome-date">
             <p class="dash-date-day">@DateTime.Now.ToString("dd")</p>
@@ -294,23 +303,25 @@
             </div>
         </a>
 
-        <div class="dash-card">
+        <a class="dash-card" href="/Home/Holidays">
             <div class="dash-card-icon amber">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" />
                     <line x1="16" y1="2" x2="16" y2="6" />
                     <line x1="8" y1="2" x2="8" y2="6" />
                     <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                </svg>s
             </div>
             <div>
                 <p class="dash-card-title">Holidays</p>
                 <p class="dash-card-sub">View upcoming holidays</p>
             </div>
-            <span class="dash-soon">Coming soon</span>
-        </div>
+            <div class="dash-card-arrow">
+                Go <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </div>
+        </a>
 
-        <div class="dash-card">
+        <a class="dash-card" asp-controller="Home" asp-action="Salary">
             <div class="dash-card-icon purple">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="1" x2="12" y2="23" />
@@ -321,8 +332,10 @@
                 <p class="dash-card-title">Salary</p>
                 <p class="dash-card-sub">Payslips & breakdown</p>
             </div>
-            <span class="dash-soon">Coming soon</span>
-        </div>
+            <div class="dash-card-arrow">
+                Go <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </div>
+        </a>
 
         <div class="dash-card">
             <div class="dash-card-icon teal">
@@ -339,23 +352,52 @@
             </div>
             <span class="dash-soon">Coming soon</span>
         </div>
-
-        <div class="dash-card">
-            <div class="dash-card-icon red">
+        <a class="dash-card" href="/Home/Attendance">
+            <div class="dash-card-icon blue">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="12" y1="18" x2="12" y2="12" />
-                    <line x1="9" y1="15" x2="15" y2="15" />
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
                 </svg>
             </div>
             <div>
-                <p class="dash-card-title">Raise a Request</p>
-                <p class="dash-card-sub">PF, Form 16 & more</p>
+                <p class="dash-card-title">Attendance</p>
+                <p class="dash-card-sub">Clock in/out & history</p>
             </div>
-            <span class="dash-soon">Coming soon</span>
-        </div>
+            <div class="dash-card-arrow">
+                Go <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </div>
+        </a>
+
+        <a class="dash-card" href="/Home/Reimbursements">
+            <div class="dash-card-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+            </div>
+            <div>
+                <p class="dash-card-title">Reimbursements</p>
+                <p class="dash-card-sub">Submit & track expenses</p>
+            </div>
+            <div class="dash-card-arrow">
+                Go <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </div>
+        </a>
+
+        <a class="dash-card" href="/Home/Announcements">
+            <div class="dash-card-icon coral">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                </svg>
+            </div>
+            <div>
+                <p class="dash-card-title">Announcements</p>
+                <p class="dash-card-sub">Company updates & notices</p>
+            </div>
+            <div class="dash-card-arrow">
+                Go <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </div>
+        </a>
 
     </div>
-
-</div>

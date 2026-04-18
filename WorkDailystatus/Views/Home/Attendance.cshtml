@@ -1,0 +1,588 @@
+﻿@{
+    ViewData["Title"] = "Attendance";
+    var today = DateTime.Today;
+
+    var records = new List<(string Date, DateTime dt, string CheckIn, string CheckOut, string Status, double Hours)>
+    {
+        ("Apr 18, 2026", new DateTime(2026,4,18), "09:02 AM", "—",         "Present",  0),
+        ("Apr 17, 2026", new DateTime(2026,4,17), "09:15 AM", "06:30 PM",  "Present",  9.25),
+        ("Apr 16, 2026", new DateTime(2026,4,16), "09:00 AM", "06:00 PM",  "Present",  9.0),
+        ("Apr 15, 2026", new DateTime(2026,4,15), "—",        "—",         "Absent",   0),
+        ("Apr 14, 2026", new DateTime(2026,4,14), "—",        "—",         "Holiday",  0),
+        ("Apr 13, 2026", new DateTime(2026,4,13), "—",        "—",         "Sunday",   0),
+        ("Apr 12, 2026", new DateTime(2026,4,12), "—",        "—",         "Saturday", 0),
+        ("Apr 11, 2026", new DateTime(2026,4,11), "08:55 AM", "06:10 PM",  "Present",  9.25),
+        ("Apr 10, 2026", new DateTime(2026,4,10), "09:30 AM", "05:45 PM",  "Present",  8.25),
+        ("Apr 9, 2026",  new DateTime(2026,4,9),  "09:05 AM", "06:20 PM",  "Present",  9.25),
+        ("Apr 8, 2026",  new DateTime(2026,4,8),  "—",        "—",         "Holiday",  0),
+        ("Apr 7, 2026",  new DateTime(2026,4,7),  "—",        "—",         "Holiday",  0),
+        ("Apr 6, 2026",  new DateTime(2026,4,6),  "—",        "—",         "Sunday",   0),
+        ("Apr 5, 2026",  new DateTime(2026,4,5),  "—",        "—",         "Saturday", 0),
+        ("Apr 4, 2026",  new DateTime(2026,4,4),  "09:10 AM", "06:05 PM",  "Present",  8.92),
+        ("Apr 3, 2026",  new DateTime(2026,4,3),  "—",        "—",         "Holiday",  0),
+        ("Apr 2, 2026",  new DateTime(2026,4,2),  "09:00 AM", "06:00 PM",  "Present",  9.0),
+        ("Apr 1, 2026",  new DateTime(2026,4,1),  "09:20 AM", "06:15 PM",  "Present",  8.92),
+    };
+
+    var workingDays = records.Count(r => r.Status != "Saturday" && r.Status != "Sunday" && r.Status != "Holiday");
+    var presentDays = records.Count(r => r.Status == "Present");
+    var absentDays = records.Count(r => r.Status == "Absent");
+    var totalHours = records.Sum(r => r.Hours);
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .att-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
+
+    .att-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+        .att-back:hover {
+            color: #1e3a5f;
+            text-decoration: none;
+        }
+
+        .att-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* HEADER */
+    .att-header {
+        background: #1e3a5f;
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+        .att-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+
+        .att-header::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 70%);
+            right: -60px;
+            top: -80px;
+            pointer-events: none;
+        }
+
+    .att-header-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    .att-header-eyebrow {
+        font-size: 11px;
+        color: #93c5fd;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+    }
+
+    .att-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .att-header-sub {
+        font-size: 13.5px;
+        color: #93adc8;
+        margin: 0;
+    }
+
+    .att-header-icon {
+        position: relative;
+        z-index: 1;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .att-header-icon svg {
+            width: 26px;
+            height: 26px;
+            color: #93c5fd;
+        }
+
+    /* CLOCK IN BANNER */
+    .att-clockbanner {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .att-clock-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .att-clock-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        flex-shrink: 0;
+        box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+    }
+
+    .att-clock-status {
+        font-size: 14px;
+        font-weight: 500;
+        color: #111827;
+    }
+
+    .att-clock-time {
+        font-size: 12px;
+        color: #9ca3af;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .att-clock-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 9px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+        .att-clock-btn.out {
+            background: #1e3a5f;
+            color: #fff;
+        }
+
+            .att-clock-btn.out:hover {
+                background: #16304f;
+            }
+
+    /* SECTION LABEL */
+    .att-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 0.75rem;
+    }
+
+    /* STATS */
+    .att-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .astat {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 11px;
+        padding: 1rem 1.25rem;
+    }
+
+    .astat-num {
+        font-size: 22px;
+        font-weight: 600;
+        color: #111827;
+        font-family: 'DM Mono', monospace;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .astat-label {
+        font-size: 11px;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+
+    .astat-num.green {
+        color: #16a34a;
+    }
+
+    .astat-num.red {
+        color: #dc2626;
+    }
+
+    .astat-num.blue {
+        color: #1e3a5f;
+    }
+
+    /* TABLE CARD */
+    .att-table-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .att-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafafa;
+    }
+
+    .att-table-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .att-table-title svg {
+            width: 15px;
+            height: 15px;
+            color: #9ca3af;
+        }
+
+    .att-table-count {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .att-filters {
+        display: flex;
+        gap: 6px;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fff;
+    }
+
+    .att-filter-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 7px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.12s;
+    }
+
+        .att-filter-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .att-filter-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+            border-color: #1e3a5f;
+        }
+
+    table.att-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .att-table thead tr {
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .att-table th {
+        padding: 9px 16px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        text-align: left;
+    }
+
+    .att-table td {
+        padding: 12px 16px;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+    }
+
+    .att-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .att-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .att-table tbody tr.today-row td {
+        background: #f0f6ff;
+    }
+
+    .att-table tbody tr.dimmed td {
+        opacity: 0.4;
+    }
+
+    .mono {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .status-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+
+        .status-badge.present {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.holiday {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-badge.saturday,
+        .status-badge.sunday {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+    .hours-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hours-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: #e5e7eb;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .hours-bar-fill {
+        height: 100%;
+        background: #1e3a5f;
+        border-radius: 2px;
+    }
+
+    @@media (max-width: 640px) {
+        .att-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1.5rem;
+        }
+
+        .att-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .att-clockbanner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="att-root">
+
+    <a class="att-back" href="/Home/Index">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <div class="att-header">
+        <div class="att-header-text">
+            <p class="att-header-eyebrow">Attendance · April @DateTime.Now.Year</p>
+            <h1 class="att-header-title">My Attendance</h1>
+            <p class="att-header-sub">Track your daily clock-in/out and attendance history.</p>
+        </div>
+        <div class="att-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- CLOCK-IN BANNER -->
+    <div class="att-clockbanner">
+        <div class="att-clock-info">
+            <div class="att-clock-dot"></div>
+            <div>
+                <div class="att-clock-status">Clocked in today</div>
+                <div class="att-clock-time">Since 09:02 AM · @today.ToString("dddd, dd MMM yyyy")</div>
+            </div>
+        </div>
+        <button class="att-clock-btn out">Clock Out</button>
+    </div>
+
+    <!-- STATS -->
+    <p class="att-section-label">This month</p>
+    <div class="att-stats">
+        <div class="astat">
+            <div class="astat-num blue">@workingDays</div>
+            <div class="astat-label">Working days</div>
+        </div>
+        <div class="astat">
+            <div class="astat-num green">@presentDays</div>
+            <div class="astat-label">Days present</div>
+        </div>
+        <div class="astat">
+            <div class="astat-num red">@absentDays</div>
+            <div class="astat-label">Days absent</div>
+        </div>
+        <div class="astat">
+            <div class="astat-num">@totalHours.ToString("F0")h</div>
+            <div class="astat-label">Total hours</div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <p class="att-section-label">Attendance log</p>
+    <div class="att-table-card">
+        <div class="att-table-header">
+            <p class="att-table-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                April @DateTime.Now.Year
+            </p>
+            <span class="att-table-count">@records.Count entries</span>
+        </div>
+        <div class="att-filters">
+            <button class="att-filter-btn active" onclick="filterAtt('all',this)">All</button>
+            <button class="att-filter-btn" onclick="filterAtt('present',this)">Present</button>
+            <button class="att-filter-btn" onclick="filterAtt('absent',this)">Absent</button>
+            <button class="att-filter-btn" onclick="filterAtt('holiday',this)">Holidays</button>
+        </div>
+        <table class="att-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Hours</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in records)
+                {
+                    var isToday = r.dt == today;
+                    var isDimmed = r.Status == "Saturday" || r.Status == "Sunday" || r.Status == "Holiday";
+                    var rowClass = isToday ? "today-row" : isDimmed ? "dimmed" : "";
+                    var sc = r.Status.ToLower();
+                    var pct = r.Hours > 0 ? Math.Min((r.Hours / 9.0) * 100, 100) : 0;
+
+                    <tr class="@rowClass att-row" data-status="@sc">
+                        <td class="mono">@r.dt.ToString("dd MMM yyyy")</td>
+                        <td class="mono">@r.dt.ToString("ddd")</td>
+                        <td class="mono">@r.CheckIn</td>
+                        <td class="mono">@r.CheckOut</td>
+                        <td>
+                            @if (r.Hours > 0)
+                            {
+                                <div class="hours-bar-wrap">
+                                    <span class="mono">@r.Hours.ToString("F2")h</span>
+                                    <div class="hours-bar">
+                                        <div class="hours-bar-fill" style="width:@pct.ToString("F0")%"></div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="mono">—</span>
+                            }
+                        </td>
+                        <td><span class="status-badge @sc">@r.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function filterAtt(filter, btn) {
+        document.querySelectorAll('.att-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.att-row').forEach(row => {
+            const s = row.dataset.status;
+            let show = false;
+            if (filter === 'all')     show = true;
+            if (filter === 'present') show = s === 'present';
+            if (filter === 'absent')  show = s === 'absent';
+            if (filter === 'holiday') show = s === 'holiday';
+            row.style.display = show ? '' : 'none';
+        });
+    }
+</script>

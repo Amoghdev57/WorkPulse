@@ -1,0 +1,482 @@
+﻿@{
+    ViewData["Title"] = "Announcements";
+    var today = DateTime.Today;
+
+    var posts = new List<(string Id, string Title, string Body, string Category, string Author, string Avatar, DateTime dt, bool Pinned)>
+    {
+        ("ANN-010", "Office closed – Good Friday (Apr 3)",
+            "A reminder that the office will remain closed on Friday, April 3rd on account of Good Friday. All employees are requested to plan their deliverables accordingly. The office resumes normal operations on Monday, April 6th.",
+            "Holiday", "HR Team", "HR", new DateTime(2026,4,1), true),
+
+        ("ANN-009", "Q1 All-Hands recap & recording now available",
+            "Thank you to everyone who joined the Q1 All-Hands on March 31st. The recording, slides, and action items are now available on the shared drive. Please review and reach out to your manager with any questions.",
+            "Company", "Anika Sharma", "AS", new DateTime(2026,4,1), false),
+
+        ("ANN-008", "New leave policy – effective April 1st",
+            "Following the recent HR review, the leave policy has been updated effective April 1, 2026. Key changes include a new Sick Leave carryover of up to 5 days and the introduction of Flexi-Leave. The full updated policy document is available on the portal.",
+            "Policy", "HR Team", "HR", new DateTime(2026,3,28), true),
+
+        ("ANN-007", "Quarterly performance reviews – schedule released",
+            "Performance review conversations for Q1 will be held between April 14–25. Your manager will schedule a 1:1 with you. Please ensure your self-assessment form is completed on the portal before April 12th.",
+            "HR", "Priya Nair", "PN", new DateTime(2026,3,25), false),
+
+        ("ANN-006", "IT maintenance – Saturday Apr 5, 11 PM–2 AM",
+            "The IT team will be performing scheduled server maintenance on Saturday, April 5th between 11 PM and 2 AM IST. WorkPulse and internal tools may be intermittently unavailable during this window. Please plan accordingly.",
+            "IT", "IT Support", "IT", new DateTime(2026,3,22), false),
+
+        ("ANN-005", "Bangalore office seating reorganisation – Block B",
+            "The seating in Block B, 3rd floor has been reorganised to accommodate the new Engineering pods. Please check the updated floor plan on the intranet. Moves will happen on the weekend of March 28–29.",
+            "Facilities", "Admin Team", "AD", new DateTime(2026,3,18), false),
+
+        ("ANN-004", "Welcome our new Head of Design – Rahul Mehta",
+            "We are thrilled to welcome Rahul Mehta as our new Head of Design, joining us from a leading fintech firm. Rahul will be based in the Bangalore office. Please give him a warm welcome when you see him around!",
+            "Team", "HR Team", "HR", new DateTime(2026,3,10), false),
+
+        ("ANN-003", "Company-wide hackathon – Innovate 2026 – registrations open",
+            "Registrations for Innovate 2026 are now open! This is a 24-hour company-wide hackathon scheduled for April 26–27. Teams of 3–5 can register on the portal. Cash prizes and recognition for top 3 teams. Don't miss out!",
+            "Event", "Culture Team", "CT", new DateTime(2026,3,5), false),
+    };
+
+    var pinned = posts.Where(p => p.Pinned).ToList();
+    var regular = posts.Where(p => !p.Pinned).ToList();
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .ann-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
+
+    .ann-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+        .ann-back:hover {
+            color: #1e3a5f;
+            text-decoration: none;
+        }
+
+        .ann-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* HEADER */
+    .ann-header {
+        background: #1e3a5f;
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+        .ann-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+
+        .ann-header::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 70%);
+            right: -60px;
+            top: -80px;
+            pointer-events: none;
+        }
+
+    .ann-header-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ann-eyebrow {
+        font-size: 11px;
+        color: #93c5fd;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+    }
+
+    .ann-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .ann-header-sub {
+        font-size: 13.5px;
+        color: #93adc8;
+        margin: 0;
+    }
+
+    .ann-header-icon {
+        position: relative;
+        z-index: 1;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .ann-header-icon svg {
+            width: 26px;
+            height: 26px;
+            color: #93c5fd;
+        }
+
+    .ann-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 0.75rem;
+    }
+
+    /* FILTERS */
+    .ann-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ann-filters {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .ann-filter-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 7px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.12s;
+    }
+
+        .ann-filter-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .ann-filter-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+            border-color: #1e3a5f;
+        }
+
+    .ann-count {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* POST CARD */
+    .ann-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 12px;
+        transition: border-color 0.15s;
+    }
+
+        .ann-card:hover {
+            border-color: #d1d5db;
+        }
+
+        .ann-card.pinned {
+            border-left: 3px solid #1e3a5f;
+            border-radius: 0 14px 14px 0;
+        }
+
+    .ann-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .ann-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ann-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #E6F1FB;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: #1e3a5f;
+        flex-shrink: 0;
+    }
+
+    .ann-author {
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .ann-date {
+        font-size: 11px;
+        color: #9ca3af;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .ann-badges {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .ann-cat-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+
+        .ann-cat-badge.holiday {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .ann-cat-badge.company {
+            background: #E6F1FB;
+            color: #1e3a5f;
+        }
+
+        .ann-cat-badge.policy {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .ann-cat-badge.hr {
+            background: #e1f5ee;
+            color: #065f46;
+        }
+
+        .ann-cat-badge.it {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .ann-cat-badge.facilities {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .ann-cat-badge.team {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .ann-cat-badge.event {
+            background: #E6F1FB;
+            color: #1d4ed8;
+        }
+
+    .ann-pin-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+        background: #1e3a5f;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .ann-pin-badge svg {
+            width: 10px;
+            height: 10px;
+        }
+
+    .ann-card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 8px;
+        line-height: 1.4;
+    }
+
+    .ann-card-body {
+        font-size: 13.5px;
+        color: #6b7280;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    @@media (max-width: 640px) {
+        .ann-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1.5rem;
+        }
+
+        .ann-card-top {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="ann-root">
+
+    <a class="ann-back" href="/Home/Index">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <div class="ann-header">
+        <div class="ann-header-text">
+            <p class="ann-eyebrow">Company · @DateTime.Now.Year</p>
+            <h1 class="ann-header-title">Announcements</h1>
+            <p class="ann-header-sub">Company-wide updates, policies, and notices from your team.</p>
+        </div>
+        <div class="ann-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="ann-toolbar">
+        <div class="ann-filters">
+            <button class="ann-filter-btn active" onclick="filterAnn('all',this)">All</button>
+            <button class="ann-filter-btn" onclick="filterAnn('pinned',this)">Pinned</button>
+            <button class="ann-filter-btn" onclick="filterAnn('holiday',this)">Holiday</button>
+            <button class="ann-filter-btn" onclick="filterAnn('policy',this)">Policy</button>
+            <button class="ann-filter-btn" onclick="filterAnn('hr',this)">HR</button>
+            <button class="ann-filter-btn" onclick="filterAnn('event',this)">Events</button>
+            <button class="ann-filter-btn" onclick="filterAnn('it',this)">IT</button>
+        </div>
+        <span class="ann-count" id="ann-count">@posts.Count announcements</span>
+    </div>
+
+    <!-- PINNED -->
+    <p class="ann-section-label">Pinned</p>
+    @foreach (var p in pinned)
+    {
+        var cat = p.Category.ToLower();
+        <div class="ann-card pinned ann-post" data-category="@cat" data-pinned="true">
+            <div class="ann-card-top">
+                <div class="ann-card-meta">
+                    <div class="ann-avatar">@p.Avatar</div>
+                    <div>
+                        <div class="ann-author">@p.Author</div>
+                        <div class="ann-date">@p.dt.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
+                <div class="ann-badges">
+                    <span class="ann-cat-badge @cat">@p.Category</span>
+                    <span class="ann-pin-badge">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                        Pinned
+                    </span>
+                </div>
+            </div>
+            <p class="ann-card-title">@p.Title</p>
+            <p class="ann-card-body">@p.Body</p>
+        </div>
+    }
+
+    <!-- ALL ANNOUNCEMENTS -->
+    <p class="ann-section-label" style="margin-top:1.5rem;">Recent</p>
+    @foreach (var p in regular)
+    {
+        var cat = p.Category.ToLower();
+        <div class="ann-card ann-post" data-category="@cat" data-pinned="false">
+            <div class="ann-card-top">
+                <div class="ann-card-meta">
+                    <div class="ann-avatar">@p.Avatar</div>
+                    <div>
+                        <div class="ann-author">@p.Author</div>
+                        <div class="ann-date">@p.dt.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
+                <div class="ann-badges">
+                    <span class="ann-cat-badge @cat">@p.Category</span>
+                </div>
+            </div>
+            <p class="ann-card-title">@p.Title</p>
+            <p class="ann-card-body">@p.Body</p>
+        </div>
+    }
+
+</div>
+
+<script>
+    function filterAnn(filter, btn) {
+        document.querySelectorAll('.ann-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        let visible = 0;
+        document.querySelectorAll('.ann-post').forEach(card => {
+            const cat    = card.dataset.category;
+            const pinned = card.dataset.pinned === 'true';
+            let show = false;
+            if (filter === 'all')    show = true;
+            else if (filter === 'pinned') show = pinned;
+            else show = cat === filter;
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        document.getElementById('ann-count').textContent = visible + ' announcement' + (visible !== 1 ? 's' : '');
+    }
+</script>

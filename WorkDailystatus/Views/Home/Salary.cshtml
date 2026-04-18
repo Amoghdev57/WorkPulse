@@ -1,0 +1,1039 @@
+﻿@model IEnumerable<WorkPulse.Models.SalaryEntry>
+
+@{
+    ViewData["Title"] = "Salary";
+    var entries      = Model?.ToList() ?? new List<WorkPulse.Models.SalaryEntry>();
+    var latest       = entries.FirstOrDefault();
+    var ytdNet       = entries.Where(e => e.Year == DateTime.Now.Year).Sum(e => e.NetPay);
+    var ytdGross     = entries.Where(e => e.Year == DateTime.Now.Year).Sum(e => e.GrossPay);
+    var ytdDed       = entries.Where(e => e.Year == DateTime.Now.Year).Sum(e => e.TotalDeductions);
+    var totalWorking = 26;
+    var totalLeaves  = 4;
+    var totalDays    = totalWorking + totalLeaves;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .sal-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
+
+    .sal-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        gap: 1rem;
+    }
+
+    .sal-page-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 3px;
+        letter-spacing: -0.3px;
+    }
+
+    .sal-page-sub {
+        font-size: 13px;
+        color: #9ca3af;
+        margin: 0;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* ── BANNER ── */
+    .sal-banner {
+        background: #1e3a5f;
+        border-radius: 16px;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .sal-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+        background-size: 22px 22px;
+        pointer-events: none;
+    }
+
+    .sal-banner::after {
+        content: '';
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(96,165,250,0.1) 0%, transparent 70%);
+        right: -40px;
+        top: -60px;
+        pointer-events: none;
+    }
+
+    .sal-banner-main { position: relative; z-index: 1; }
+
+    .sal-banner-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #4a7a9b;
+        font-family: 'DM Mono', monospace;
+        margin: 0 0 6px;
+    }
+
+    .sal-banner-amount {
+        font-size: 32px;
+        font-weight: 600;
+        color: #ffffff;
+        font-family: 'DM Mono', monospace;
+        margin: 0 0 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .sal-banner-month {
+        font-size: 12px;
+        color: #93adc8;
+        margin: 0;
+    }
+
+    .sal-banner-stat { position: relative; z-index: 1; }
+
+    .sal-banner-stat-label {
+        font-size: 10px;
+        color: #4a7a9b;
+        font-family: 'DM Mono', monospace;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .sal-banner-stat-val {
+        font-size: 17px;
+        font-weight: 600;
+        color: #ffffff;
+        font-family: 'DM Mono', monospace;
+        margin: 0;
+    }
+
+    /* ── YTD ── */
+    .sal-ytd {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .sal-ytd-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+    }
+
+    .sal-ytd-label {
+        font-size: 11px;
+        color: #9ca3af;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin: 0 0 6px;
+    }
+
+    .sal-ytd-val {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
+        font-family: 'DM Mono', monospace;
+        margin: 0 0 3px;
+    }
+
+    .sal-ytd-val.green { color: #16a34a; }
+    .sal-ytd-val.red   { color: #dc2626; }
+    .sal-ytd-sub { font-size: 11px; color: #9ca3af; margin: 0; }
+
+    /* ── ADD SALARY FORM CARD ── */
+    .sal-add-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .sal-add-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .sal-add-title svg { width: 15px; height: 15px; color: #9ca3af; }
+
+    .sal-form-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .sal-form-group { display: flex; flex-direction: column; gap: 5px; }
+
+    .sal-form-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #9ca3af;
+    }
+
+    .sal-form-input {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: #111827;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        width: 100%;
+    }
+
+    .sal-form-input:focus {
+        border-color: #1e3a5f;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
+    }
+
+    .sal-form-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sal-calc-preview {
+        flex: 1;
+        background: #f0f6ff;
+        border: 1px solid #c7d7ed;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #1e3a5f;
+        display: none;
+    }
+
+    .sal-calc-preview.show { display: block; }
+    .sal-calc-preview strong { font-family: 'DM Mono', monospace; font-size: 15px; }
+
+    .sal-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 9px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sal-btn svg { width: 14px; height: 14px; }
+    .sal-btn:active { transform: scale(0.98); }
+
+    .sal-btn-primary { background: #1e3a5f; color: #ffffff; }
+    .sal-btn-primary:hover { background: #152b48; }
+
+    .sal-btn-outline {
+        background: transparent;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+    }
+
+    .sal-btn-outline:hover { background: #f3f4f6; }
+
+    /* ── LAYOUT: table + chart ── */
+    .sal-main-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 16px;
+        align-items: start;
+    }
+
+    /* ── TABLE ── */
+    .sal-table-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .sal-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafafa;
+    }
+
+    .sal-table-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .sal-table-title svg { width: 15px; height: 15px; color: #9ca3af; }
+
+    .sal-count-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    table.sal-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .sal-table thead tr { background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+
+    .sal-table th {
+        padding: 9px 14px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        text-align: left;
+    }
+
+    .sal-table td {
+        padding: 11px 14px;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+    }
+
+    .sal-table tbody tr:last-child td { border-bottom: none; }
+    .sal-table tbody tr { transition: background 0.1s; }
+    .sal-table tbody tr:hover { background: #fafafa; }
+
+    .sal-mono { font-family: 'DM Mono', monospace; font-size: 12.5px; }
+    .sal-green { color: #16a34a; font-weight: 600; }
+    .sal-red   { color: #dc2626; font-weight: 500; }
+
+    .sal-month-badge {
+        font-size: 11px;
+        font-weight: 600;
+        color: #1e3a5f;
+        background: #E6F1FB;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-family: 'DM Mono', monospace;
+        white-space: nowrap;
+    }
+
+    .sal-expand-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        color: #9ca3af;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        transition: all 0.12s;
+        white-space: nowrap;
+    }
+
+    .sal-expand-btn:hover { background: #f3f4f6; color: #374151; }
+    .sal-expand-btn svg { width: 13px; height: 13px; transition: transform 0.2s; }
+    .sal-expand-btn.open svg { transform: rotate(180deg); }
+
+    .sal-pdf-btn {
+        background: none;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        color: #6b7280;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        transition: all 0.12s;
+        margin-left: 4px;
+        text-decoration: none;
+    }
+
+    .sal-pdf-btn:hover { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
+    .sal-pdf-btn svg { width: 12px; height: 12px; }
+
+    /* detail expand */
+    .sal-detail {
+        display: none;
+        padding: 0;
+        background: #f8fafc;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .sal-detail.open { display: block; }
+
+    .sal-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .sal-detail-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 10px;
+    }
+
+    .sal-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 13px;
+    }
+
+    .sal-detail-row:last-child { border-bottom: none; }
+    .sal-detail-key { color: #6b7280; }
+    .sal-detail-val { font-weight: 500; color: #111827; font-family: 'DM Mono', monospace; }
+    .sal-detail-val.green { color: #16a34a; }
+    .sal-detail-val.red   { color: #dc2626; }
+
+    .sal-total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0 0;
+        margin-top: 6px;
+        border-top: 2px solid #e5e7eb;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* ── CHART SIDEBAR ── */
+    .sal-chart-col { display: flex; flex-direction: column; gap: 14px; }
+
+    .sal-chart-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.25rem;
+    }
+
+    .sal-chart-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sal-chart-title svg { width: 14px; height: 14px; color: #9ca3af; }
+
+    .sal-chart-canvas { width: 100%; }
+
+    .sal-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 1rem;
+    }
+
+    .sal-legend-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12.5px;
+    }
+
+    .sal-legend-left { display: flex; align-items: center; gap: 8px; }
+
+    .sal-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .sal-legend-label { color: #374151; }
+    .sal-legend-val   { font-family: 'DM Mono', monospace; font-size: 12px; color: #6b7280; }
+
+    /* bar chart */
+    .sal-bar-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .sal-bar-item { display: flex; flex-direction: column; gap: 4px; }
+
+    .sal-bar-top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .sal-bar-label { color: #6b7280; font-family: 'DM Mono', monospace; }
+    .sal-bar-val   { color: #111827; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+    .sal-bar-track {
+        height: 6px;
+        background: #f3f4f6;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .sal-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.8s ease;
+    }
+
+    /* empty */
+    .sal-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .sal-empty-icon {
+        width: 52px;
+        height: 52px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sal-empty-icon svg { width: 22px; height: 22px; color: #d1d5db; }
+    .sal-empty-title { font-size: 15px; font-weight: 600; color: #374151; margin: 0 0 4px; }
+    .sal-empty-sub   { font-size: 13px; color: #9ca3af; margin: 0; }
+
+    @@media (max-width: 768px) {
+        .sal-banner       { grid-template-columns: 1fr 1fr; }
+        .sal-ytd          { grid-template-columns: 1fr; }
+        .sal-form-grid    { grid-template-columns: 1fr 1fr; }
+        .sal-main-layout  { grid-template-columns: 1fr; }
+        .sal-detail-grid  { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="sal-root">
+
+    <div class="sal-page-header">
+        <div>
+            <h1 class="sal-page-title">Salary</h1>
+            <p class="sal-page-sub">@DateTime.Now.ToString("dddd, dd MMM yyyy")</p>
+        </div>
+    </div>
+
+    @if (latest != null)
+    {
+        <div class="sal-banner">
+            <div class="sal-banner-main">
+                <p class="sal-banner-label">Latest net pay</p>
+                <p class="sal-banner-amount">&#8377;@latest.NetPay.ToString("N0")</p>
+                <p class="sal-banner-month">@latest.MonthName @latest.Year</p>
+            </div>
+            <div class="sal-banner-stat">
+                <p class="sal-banner-stat-label">Gross</p>
+                <p class="sal-banner-stat-val">&#8377;@latest.GrossPay.ToString("N0")</p>
+            </div>
+            <div class="sal-banner-stat">
+                <p class="sal-banner-stat-label">Deductions</p>
+                <p class="sal-banner-stat-val">&#8377;@latest.TotalDeductions.ToString("N0")</p>
+            </div>
+            <div class="sal-banner-stat">
+                <p class="sal-banner-stat-label">Payslips</p>
+                <p class="sal-banner-stat-val">@entries.Count</p>
+            </div>
+        </div>
+
+        <div class="sal-ytd">
+            <div class="sal-ytd-card">
+                <p class="sal-ytd-label">YTD Gross</p>
+                <p class="sal-ytd-val">&#8377;@ytdGross.ToString("N0")</p>
+                <p class="sal-ytd-sub">Jan – @DateTime.Now.ToString("MMM yyyy")</p>
+            </div>
+            <div class="sal-ytd-card">
+                <p class="sal-ytd-label">YTD Net take-home</p>
+                <p class="sal-ytd-val green">&#8377;@ytdNet.ToString("N0")</p>
+                <p class="sal-ytd-sub">After all deductions</p>
+            </div>
+            <div class="sal-ytd-card">
+                <p class="sal-ytd-label">YTD Deductions</p>
+                <p class="sal-ytd-val red">&#8377;@ytdDed.ToString("N0")</p>
+                <p class="sal-ytd-sub">PF + Tax combined</p>
+            </div>
+        </div>
+    }
+
+    <!-- ── ADD SALARY ── -->
+    <div class="sal-add-card">
+        <p class="sal-add-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add / update payslip
+        </p>
+
+        <form asp-action="AddSalary" method="post" id="salaryForm">
+            <div class="sal-form-grid">
+                <div class="sal-form-group">
+                    <label class="sal-form-label">Month</label>
+                    <select name="month" class="sal-form-input" id="salMonth" onchange="calcPreview()">
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            var mn = new DateTime(2026, m, 1).ToString("MMMM");
+
+                            if (m == DateTime.Now.Month)
+                            {
+                                <option value="@m" selected>@mn</option>
+                            }
+                            else
+                            {
+                                <option value="@m">@mn</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="sal-form-group">
+                    <label class="sal-form-label">Year</label>
+                    <select name="year" class="sal-form-input" id="salYear" onchange="calcPreview()">
+                        @for (int y = DateTime.Now.Year - 1; y <= DateTime.Now.Year + 1; y++)
+                        {
+                            if (y == DateTime.Now.Year)
+                            {
+                                <option value="@y" selected>@y</option>
+                            }
+                            else
+                            {
+                                <option value="@y">@y</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="sal-form-group">
+                    <label class="sal-form-label">CTC / Gross (&#8377;)</label>
+                    <input type="number" name="ctc" id="salCtc" class="sal-form-input"
+                           placeholder="e.g. 400000" oninput="calcPreview()" />
+                </div>
+                <div class="sal-form-group">
+                    <label class="sal-form-label">Bonus (&#8377;)</label>
+                    <input type="number" name="bonus" id="salBonus" class="sal-form-input"
+                           placeholder="0" value="0" oninput="calcPreview()" />
+                </div>
+            </div>
+
+            <div class="sal-form-actions">
+                <div class="sal-calc-preview" id="calcPreview"></div>
+                <button type="submit" class="sal-btn sal-btn-primary" id="salSaveBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save payslip
+                </button>
+            </div>
+
+            <!-- hidden computed fields -->
+            <input type="hidden" name="basicSalary"  id="h_basic" />
+            <input type="hidden" name="hra"           id="h_hra" />
+            <input type="hidden" name="pfDeduction"   id="h_pf" />
+            <input type="hidden" name="taxDeduction"  id="h_tax" />
+            <input type="hidden" name="netPay"        id="h_net" />
+        </form>
+    </div>
+
+    <!-- ── MAIN LAYOUT ── -->
+    <div class="sal-main-layout">
+
+        <!-- TABLE -->
+        <div class="sal-table-card">
+            <div class="sal-table-header">
+                <p class="sal-table-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Payslip history
+                </p>
+                <span class="sal-count-badge">@entries.Count</span>
+            </div>
+
+            @if (entries.Any())
+            {
+                <table class="sal-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Basic</th>
+                            <th>HRA</th>
+                            <th>Bonus</th>
+                            <th>Net Pay</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in entries)
+                        {
+                            <tr>
+                                <td><span class="sal-month-badge">@e.MonthName.Substring(0,3) @e.Year</span></td>
+                                <td class="sal-mono">&#8377;@e.BasicSalary.ToString("N0")</td>
+                                <td class="sal-mono">&#8377;@e.HRA.ToString("N0")</td>
+                                <td class="sal-mono">
+                                    @if (e.Bonus > 0)
+                                    {
+                                        <span class="sal-green">+&#8377;@e.Bonus.ToString("N0")</span>
+                                    }
+                                    else { <span style="color:#d1d5db;">—</span> }
+                                </td>
+                                <td class="sal-mono sal-green">&#8377;@e.NetPay.ToString("N0")</td>
+                                <td style="white-space:nowrap;">
+                                    <button class="sal-expand-btn" id="btn-@e.Id"
+                                            onclick="toggleDetail('@e.Id')">
+                                        Details
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </button>
+                                    <a class="sal-pdf-btn"
+                                       href="@Url.Action("DownloadPayslip","Home", new { id = e.Id })"
+                                       title="Download PDF">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="padding:0;">
+                                    <div class="sal-detail" id="detail-@e.Id">
+                                        <div class="sal-detail-grid">
+                                            <div>
+                                                <p class="sal-detail-title">Earnings</p>
+                                                <div class="sal-detail-row">
+                                                    <span class="sal-detail-key">Basic Salary</span>
+                                                    <span class="sal-detail-val">&#8377;@e.BasicSalary.ToString("N2")</span>
+                                                </div>
+                                                <div class="sal-detail-row">
+                                                    <span class="sal-detail-key">HRA (40% of basic)</span>
+                                                    <span class="sal-detail-val">&#8377;@e.HRA.ToString("N2")</span>
+                                                </div>
+                                                <div class="sal-detail-row">
+                                                    <span class="sal-detail-key">Bonus</span>
+                                                    <span class="sal-detail-val green">&#8377;@e.Bonus.ToString("N2")</span>
+                                                </div>
+                                                <div class="sal-total-row">
+                                                    <span>Gross Pay</span>
+                                                    <span style="font-family:'DM Mono',monospace;">&#8377;@e.GrossPay.ToString("N2")</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="sal-detail-title">Deductions</p>
+                                                <div class="sal-detail-row">
+                                                    <span class="sal-detail-key">PF (12% of basic)</span>
+                                                    <span class="sal-detail-val red">-&#8377;@e.PFDeduction.ToString("N2")</span>
+                                                </div>
+                                                <div class="sal-detail-row">
+                                                    <span class="sal-detail-key">Tax / TDS (10% of basic)</span>
+                                                    <span class="sal-detail-val red">-&#8377;@e.TaxDeduction.ToString("N2")</span>
+                                                </div>
+                                                <div class="sal-total-row">
+                                                    <span>Net Take-Home</span>
+                                                    <span class="sal-green" style="font-family:'DM Mono',monospace;">&#8377;@e.NetPay.ToString("N2")</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="sal-empty">
+                    <div class="sal-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <p class="sal-empty-title">No payslips yet</p>
+                    <p class="sal-empty-sub">Enter your CTC above to generate your first payslip</p>
+                </div>
+            }
+        </div>
+
+        <!-- CHARTS SIDEBAR -->
+        <div class="sal-chart-col">
+
+            <!-- Pie: working vs leaves -->
+            <div class="sal-chart-card">
+                <p class="sal-chart-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                    </svg>
+                    Attendance · @DateTime.Now.ToString("MMM yyyy")
+                </p>
+                <canvas id="attendancePie" width="240" height="240" class="sal-chart-canvas"></canvas>
+                <div class="sal-legend">
+                    <div class="sal-legend-item">
+                        <div class="sal-legend-left">
+                            <div class="sal-legend-dot" style="background:#1e3a5f;"></div>
+                            <span class="sal-legend-label">Working days</span>
+                        </div>
+                        <span class="sal-legend-val">@totalWorking days</span>
+                    </div>
+                    <div class="sal-legend-item">
+                        <div class="sal-legend-left">
+                            <div class="sal-legend-dot" style="background:#f59e0b;"></div>
+                            <span class="sal-legend-label">Leaves taken</span>
+                        </div>
+                        <span class="sal-legend-val">@totalLeaves days</span>
+                    </div>
+                    <div class="sal-legend-item">
+                        <div class="sal-legend-left">
+                            <div class="sal-legend-dot" style="background:#e5e7eb;"></div>
+                            <span class="sal-legend-label">Weekends / holidays</span>
+                        </div>
+                        <span class="sal-legend-val">@(DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - totalDays) days</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar: monthly net pay -->
+            @if (entries.Any())
+            {
+                <div class="sal-chart-card">
+                    <p class="sal-chart-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6"  y1="20" x2="6"  y2="14"/>
+                            <line x1="2"  y1="20" x2="22" y2="20"/>
+                        </svg>
+                        Net pay trend
+                    </p>
+                    @{
+                        var maxNet = entries.Max(e => e.NetPay);
+                    }
+                    <div class="sal-bar-list">
+                        @foreach (var e in entries.Take(6).Reverse())
+                        {
+                            var pct = maxNet > 0 ? (double)e.NetPay / (double)maxNet * 100 : 0;
+                            <div class="sal-bar-item">
+                                <div class="sal-bar-top">
+                                    <span class="sal-bar-label">@e.MonthName.Substring(0,3) @(e.Year.ToString().Substring(2))</span>
+                                    <span class="sal-bar-val">&#8377;@e.NetPay.ToString("N0")</span>
+                                </div>
+                                <div class="sal-bar-track">
+                                    <div class="sal-bar-fill"
+                                         style="width:@pct.ToString("F0")%;background:#1e3a5f;"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Breakdown pie of latest -->
+            @if (latest != null)
+            {
+                <div class="sal-chart-card">
+                    <p class="sal-chart-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                        </svg>
+                        Salary breakdown
+                    </p>
+                    <canvas id="breakdownPie" width="240" height="240" class="sal-chart-canvas"></canvas>
+                    <div class="sal-legend">
+                        <div class="sal-legend-item">
+                            <div class="sal-legend-left">
+                                <div class="sal-legend-dot" style="background:#1e3a5f;"></div>
+                                <span class="sal-legend-label">Basic</span>
+                            </div>
+                            <span class="sal-legend-val">&#8377;@latest.BasicSalary.ToString("N0")</span>
+                        </div>
+                        <div class="sal-legend-item">
+                            <div class="sal-legend-left">
+                                <div class="sal-legend-dot" style="background:#3b82f6;"></div>
+                                <span class="sal-legend-label">HRA</span>
+                            </div>
+                            <span class="sal-legend-val">&#8377;@latest.HRA.ToString("N0")</span>
+                        </div>
+                        <div class="sal-legend-item">
+                            <div class="sal-legend-left">
+                                <div class="sal-legend-dot" style="background:#22c55e;"></div>
+                                <span class="sal-legend-label">Bonus</span>
+                            </div>
+                            <span class="sal-legend-val">&#8377;@latest.Bonus.ToString("N0")</span>
+                        </div>
+                        <div class="sal-legend-item">
+                            <div class="sal-legend-left">
+                                <div class="sal-legend-dot" style="background:#ef4444;"></div>
+                                <span class="sal-legend-label">Deductions</span>
+                            </div>
+                            <span class="sal-legend-val">-&#8377;@latest.TotalDeductions.ToString("N0")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    /* ── AUTO CALCULATE ── */
+    function calcPreview() {
+        const ctc   = parseFloat(document.getElementById('salCtc').value)   || 0;
+        const bonus = parseFloat(document.getElementById('salBonus').value) || 0;
+        const prev  = document.getElementById('calcPreview');
+        const btn   = document.getElementById('salSaveBtn');
+
+        if (ctc <= 0) {
+            prev.classList.remove('show');
+            btn.disabled = true;
+            return;
+        }
+
+        // Breakdown logic
+        const monthly   = ctc / 12;
+        const basic     = Math.round(monthly * 0.50);
+        const hra       = Math.round(basic   * 0.40);
+        const pf        = Math.round(basic   * 0.12);
+        const tax       = Math.round(basic   * 0.10);
+        const gross     = basic + hra + bonus;
+        const net       = gross - pf - tax;
+
+        document.getElementById('h_basic').value = basic;
+        document.getElementById('h_hra').value   = hra;
+        document.getElementById('h_pf').value    = pf;
+        document.getElementById('h_tax').value   = tax;
+        document.getElementById('h_net').value   = net;
+
+        prev.innerHTML = `
+            Basic ₹${basic.toLocaleString('en-IN')} &nbsp;|&nbsp;
+            HRA ₹${hra.toLocaleString('en-IN')} &nbsp;|&nbsp;
+            PF -₹${pf.toLocaleString('en-IN')} &nbsp;|&nbsp;
+            Tax -₹${tax.toLocaleString('en-IN')} &nbsp;→&nbsp;
+            <strong>Net ₹${net.toLocaleString('en-IN')}</strong>`;
+        prev.classList.add('show');
+        btn.disabled = false;
+    }
+
+    /* ── TOGGLE DETAIL ROW ── */
+    function toggleDetail(id) {
+        const panel = document.getElementById('detail-' + id);
+        const btn   = document.getElementById('btn-'    + id);
+        const isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        btn.classList.toggle('open', !isOpen);
+    }
+
+    /* ── ATTENDANCE PIE ── */
+    const attCtx = document.getElementById('attendancePie');
+    if (attCtx) {
+        new Chart(attCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Working days', 'Leaves', 'Off days'],
+                datasets: [{
+                    data: [@totalWorking, @totalLeaves, @(DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - totalDays)],
+                    backgroundColor: ['#1e3a5f','#f59e0b','#e5e7eb'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                cutout: '68%',
+                plugins: { legend: { display: false }, tooltip: { callbacks: {
+                    label: ctx => ` ${ctx.label}: ${ctx.parsed} days`
+                }}},
+                animation: { animateRotate: true, duration: 800 }
+            }
+        });
+    }
+
+    /* ── BREAKDOWN PIE ── */
+    @if (latest != null)
+    {
+        <text>
+        const bdCtx = document.getElementById('breakdownPie');
+        if (bdCtx) {
+            new Chart(bdCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Basic','HRA','Bonus','Deductions'],
+                    datasets: [{
+                        data: [@latest.BasicSalary, @latest.HRA, @latest.Bonus, @latest.TotalDeductions],
+                        backgroundColor: ['#1e3a5f','#3b82f6','#22c55e','#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    cutout: '68%',
+                    plugins: { legend: { display: false }, tooltip: { callbacks: {
+                        label: ctx => ` ${ctx.label}: ₹${ctx.parsed.toLocaleString('en-IN')}`
+                    }}},
+                    animation: { animateRotate: true, duration: 800 }
+                }
+            });
+        }
+        </text>
+    }
+</script>
+}

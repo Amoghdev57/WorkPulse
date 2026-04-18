@@ -1,0 +1,540 @@
+﻿@{
+    ViewData["Title"] = "Reimbursements";
+    var today = DateTime.Today;
+
+    var claims = new List<(string Id, string Title, string Category, string Date, DateTime dt, double Amount, string Status, string Note)>
+    {
+        ("RMB-009", "Team lunch – client visit",   "Meals",       "Apr 17, 2026", new DateTime(2026,4,17), 1850.00, "Pending",  "Awaiting manager approval"),
+        ("RMB-008", "Cab to office – late night",  "Travel",      "Apr 12, 2026", new DateTime(2026,4,12), 320.00,  "Approved", ""),
+        ("RMB-007", "AWS course subscription",     "Training",    "Apr 5, 2026",  new DateTime(2026,4,5),  2499.00, "Approved", ""),
+        ("RMB-006", "Printer cartridge",           "Office",      "Mar 28, 2026", new DateTime(2026,3,28), 780.00,  "Paid",     "Reimbursed on Apr 2"),
+        ("RMB-005", "Flight – Delhi offsite",      "Travel",      "Mar 20, 2026", new DateTime(2026,3,20), 6200.00, "Paid",     "Reimbursed on Mar 27"),
+        ("RMB-004", "Conference registration",     "Training",    "Mar 10, 2026", new DateTime(2026,3,10), 3500.00, "Paid",     "Reimbursed on Mar 18"),
+        ("RMB-003", "Office snacks",               "Meals",       "Feb 22, 2026", new DateTime(2026,2,22), 650.00,  "Rejected", "Exceeds meal policy limit"),
+        ("RMB-002", "Internet bill – Feb",         "Utilities",   "Feb 28, 2026", new DateTime(2026,2,28), 999.00,  "Paid",     "Reimbursed on Mar 5"),
+        ("RMB-001", "Keyboard – WFH setup",        "Equipment",   "Feb 10, 2026", new DateTime(2026,2,10), 2200.00, "Paid",     "Reimbursed on Feb 18"),
+    };
+
+    var totalPaid = claims.Where(c => c.Status == "Paid").Sum(c => c.Amount);
+    var totalPending = claims.Where(c => c.Status == "Pending" || c.Status == "Approved").Sum(c => c.Amount);
+    var totalRejected = claims.Where(c => c.Status == "Rejected").Sum(c => c.Amount);
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    .rmb-root {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+    }
+
+    .rmb-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+        .rmb-back:hover {
+            color: #1e3a5f;
+            text-decoration: none;
+        }
+
+        .rmb-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* HEADER */
+    .rmb-header {
+        background: #1e3a5f;
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+        .rmb-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+
+        .rmb-header::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 70%);
+            right: -60px;
+            top: -80px;
+            pointer-events: none;
+        }
+
+    .rmb-header-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    .rmb-eyebrow {
+        font-size: 11px;
+        color: #93c5fd;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+    }
+
+    .rmb-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .rmb-header-sub {
+        font-size: 13.5px;
+        color: #93adc8;
+        margin: 0;
+    }
+
+    .rmb-header-icon {
+        position: relative;
+        z-index: 1;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .rmb-header-icon svg {
+            width: 26px;
+            height: 26px;
+            color: #93c5fd;
+        }
+
+    .rmb-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        margin: 0 0 0.75rem;
+    }
+
+    /* STATS */
+    .rmb-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .rstat {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 11px;
+        padding: 1rem 1.25rem;
+    }
+
+    .rstat-num {
+        font-size: 22px;
+        font-weight: 600;
+        font-family: 'DM Mono', monospace;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .rstat-label {
+        font-size: 11px;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+
+    .rstat-num.green {
+        color: #16a34a;
+    }
+
+    .rstat-num.amber {
+        color: #d97706;
+    }
+
+    .rstat-num.red {
+        color: #dc2626;
+    }
+
+    /* NEW CLAIM BUTTON AREA */
+    .rmb-action-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .rmb-new-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border-radius: 9px;
+        border: none;
+        background: #1e3a5f;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.15s;
+    }
+
+        .rmb-new-btn:hover {
+            background: #16304f;
+        }
+
+        .rmb-new-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* TABLE CARD */
+    .rmb-table-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .rmb-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafafa;
+    }
+
+    .rmb-table-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .rmb-table-title svg {
+            width: 15px;
+            height: 15px;
+            color: #9ca3af;
+        }
+
+    .rmb-table-count {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .rmb-filters {
+        display: flex;
+        gap: 6px;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .rmb-filter-btn {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 7px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.12s;
+    }
+
+        .rmb-filter-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .rmb-filter-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+            border-color: #1e3a5f;
+        }
+
+    table.rmb-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .rmb-table thead tr {
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .rmb-table th {
+        padding: 9px 16px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        text-align: left;
+    }
+
+    .rmb-table td {
+        padding: 12px 16px;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+    }
+
+    .rmb-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .rmb-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .mono {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .rmb-id {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .cat-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+
+        .cat-badge.meals {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .cat-badge.travel {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .cat-badge.training {
+            background: #e1f5ee;
+            color: #065f46;
+        }
+
+        .cat-badge.office {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .cat-badge.utilities {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .cat-badge.equipment {
+            background: #E6F1FB;
+            color: #1e3a5f;
+        }
+
+    .status-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.approved {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-badge.paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+    .note-text {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    @@media (max-width: 640px) {
+        .rmb-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1.5rem;
+        }
+
+        .rmb-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="rmb-root">
+
+    <a class="rmb-back" href="/Home/Index">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <div class="rmb-header">
+        <div class="rmb-header-text">
+            <p class="rmb-eyebrow">Finance · @DateTime.Now.Year</p>
+            <h1 class="rmb-header-title">Reimbursements</h1>
+            <p class="rmb-header-sub">Submit expense claims and track their approval status.</p>
+        </div>
+        <div class="rmb-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <p class="rmb-section-label">Summary</p>
+    <div class="rmb-stats">
+        <div class="rstat">
+            <div class="rstat-num green">₹@totalPaid.ToString("N0")</div>
+            <div class="rstat-label">Total reimbursed</div>
+        </div>
+        <div class="rstat">
+            <div class="rstat-num amber">₹@totalPending.ToString("N0")</div>
+            <div class="rstat-label">Pending / Approved</div>
+        </div>
+        <div class="rstat">
+            <div class="rstat-num red">₹@totalRejected.ToString("N0")</div>
+            <div class="rstat-label">Rejected</div>
+        </div>
+    </div>
+
+    <!-- CLAIMS TABLE -->
+    <div class="rmb-action-bar">
+        <p class="rmb-section-label" style="margin:0;">All claims</p>
+        <button class="rmb-new-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New claim
+        </button>
+    </div>
+
+    <div class="rmb-table-card">
+        <div class="rmb-table-header">
+            <p class="rmb-table-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+                Expense claims
+            </p>
+            <span class="rmb-table-count">@claims.Count</span>
+        </div>
+        <div class="rmb-filters">
+            <button class="rmb-filter-btn active" onclick="filterRmb('all',this)">All</button>
+            <button class="rmb-filter-btn" onclick="filterRmb('pending',this)">Pending</button>
+            <button class="rmb-filter-btn" onclick="filterRmb('approved',this)">Approved</button>
+            <button class="rmb-filter-btn" onclick="filterRmb('paid',this)">Paid</button>
+            <button class="rmb-filter-btn" onclick="filterRmb('rejected',this)">Rejected</button>
+        </div>
+        <table class="rmb-table">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in claims)
+                {
+                    var sc = c.Status.ToLower();
+                    var cat = c.Category.ToLower();
+                    <tr class="rmb-row" data-status="@sc">
+                        <td class="rmb-id">@c.Id</td>
+                        <td>
+                            <span style="font-weight:500;color:#111827;">@c.Title</span>
+                            @if (!string.IsNullOrEmpty(c.Note))
+                            {
+                                <div class="note-text">@c.Note</div>
+                            }
+                        </td>
+                        <td><span class="cat-badge @cat">@c.Category</span></td>
+                        <td class="mono">@c.dt.ToString("dd MMM yyyy")</td>
+                        <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#111827;">₹@c.Amount.ToString("N0")</td>
+                        <td><span class="status-badge @sc">@c.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function filterRmb(filter, btn) {
+        document.querySelectorAll('.rmb-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.rmb-row').forEach(row => {
+            const s = row.dataset.status;
+            let show = filter === 'all' || s === filter;
+            row.style.display = show ? '' : 'none';
+        });
+    }
+</script>
